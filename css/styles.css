@@ -1,0 +1,253 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: white;
+    background-color: black;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+}
+
+.mainHeader {
+    padding: 5px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 1px 3px grey;
+    border-bottom: 0px solid #f0f0f0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0px auto;
+    padding: 0px 24px;
+}
+
+.loginHeader {
+    margin: 32px 0px;
+    text-align: center;
+}
+
+.loginContainer {
+    max-width: 375px;
+    margin-top: 80px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 24px;
+    padding: 64px 0px 0px 0px;
+}
+
+.navegation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+}
+
+.menu ul {
+    display: flex;
+    list-style: none;
+    gap: 16px;
+    align-items: center;
+}
+
+.menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.2s;
+    position: relative;
+}
+
+.menu a:hover {
+    color: #ddd;
+}
+
+.loginBtn {
+    color: white;
+    background-color: #444;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.loginBtn:hover {
+    background-color: #666;
+}
+
+.menu a.registerBtn {
+    color: black;
+    background-color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.menu a.registerBtn:hover {
+    background-color: #ddd;
+}   
+
+.textArea {
+    margin-bottom: 24px;
+}
+
+.textArea label {
+    color: white;
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.textArea input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #222;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.grupoForm input:focus {
+    outline: none;
+    border-color: #444;
+}
+
+.errorMensaje {
+    color: white;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+}
+
+.submitBtn {
+    width: 100%;
+    background: #238636;
+    color: white;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.submitBtn:hover {
+    background-color: #29903b;
+}
+
+.alternativeLink {
+    text-align: center;
+    margin-bottom: 236px;
+    color: white;
+    font-size: 14px;
+}
+
+.alternativeLink a {
+    color: #4493f8
+}
+
+footer {
+    background-color: #1a1a1a;
+    color: #ddd;
+    padding: 64px 0 24px;
+}
+
+.footerTop {
+    background-color: transparent;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 64px;
+    margin-bottom: 24px;
+    padding: 0px 128px;
+}
+
+.footerLogo {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.footerLogo h3 {
+    background-color: transparent;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.footerColumn {
+    background-color: transparent;
+}
+
+.footerColumn p {
+    background-color: transparent;
+    color: #999;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.footerColumn h4 {
+    background-color: transparent;
+    font-size: 16px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.footerColumn ul {
+    background-color: transparent;
+    list-style: none;
+}
+
+.footerColumn ul li {
+    background-color: transparent;
+    margin-bottom: 12px;
+}
+
+.footerColumn a {
+    background-color: transparent;
+    color: #999;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.footerColumn a:hover {
+    color: white;
+}
+
+.footerContacto li {
+    background-color: transparent;
+    color: #999;
+    font-size: 14px;
+}
+
+.footerBot {
+    background-color: transparent;
+    border-top: 1px solid #333;
+    padding-top: 24px;
+    text-align: center;
+}
+
+.footerBot p {
+    background-color: transparent;
+    color: #999;
+    font-size: 14px;
+}
