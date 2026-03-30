@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="css/styles.css"></link>
     <link rel="icon" sizes="48x48" type="image/png" href="img/favicons.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/authentication.js"></script>
 </head>
 <body>
     <header class="mainHeader"> 
@@ -28,24 +30,34 @@
 
     <section>
         <div class="container">
-            <div class="loginContainer">
-                <div class="loginHeader">
-                    <h2>Sign in to FocusFlow</h2>
+            <form class="registerContainer" id="registerContainer" name="registerContainer" method="POST" action="register-back.html">
+                <div class="registerHeader">
+                    <h2>Sign up to FocusFlow</h2>
                 </div>
                 <div class="textArea">
-                    <label for="emailLogin">Email address</label>
-                    <input type="email" id="emailLogin" name="email">
-                    <span class="errorMensaje" id="errorEmail">Invalid email</span>
+                    <label for="usernameRegister">Username</label>
+                    <input type="text" id="usernameRegister" name="usernameRegister">
+                    <span class="errorMsg" id="usernameError">Invalid username</span>
                 </div>
                 <div class="textArea">
-                    <label for="passwordLogin">Password</label>
-                    <input type="password" id="passwordLogin" name="password">
-                    <span class="errorMensaje" id="errorPassword">Incorrect password</span>
+                    <label for="emailRegister">Email</label>
+                    <input type="type" id="emailRegister" name="emailRegister">
+                    <span class="errorMsg" id="emailError">Invalid email</span>
                 </div>
-                <button type="submit" class="submitBtn">Sign in</button>
-            </div>
-            <div class="alternativeLink">
-                <p>New to FocusFlow? <a href="register.php">Create an account</a></p>
+                <div class="textArea">
+                    <label for="passwordRegister">Password</label>
+                    <input type="password" id="passwordRegister" name="passwordRegister">
+                    <span class="errorMsg" id="passwordError">Invalid password</span>
+                </div>
+                <div class="textArea">
+                    <label for="pConfirmRegister">Confirm password</label>
+                    <input type="password" id="pConfirmRegister" name="pConfirmRegister">
+                    <span class="errorMsg" id="pConfirmError">Passwords don't match</span>
+                </div>
+                <button type="submit" class="submitBtn">Create account</button>
+            </form>
+            <div class="alternativeLinkRegister">
+                <p>Already have an account? <a href="login.html">Sign in</a></p>
             </div>
         </div>
     </section>
@@ -69,9 +81,9 @@
             <div class="footerColumn">
                 <h4>Quick links</h4>
                 <ul>
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="login.php">Login</a></li>
-                    <li><a href="register.php">Register</a></li>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html">Register</a></li>
                 </ul>
             </div>
         </div>
