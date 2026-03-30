@@ -24,7 +24,7 @@ def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
 
 # CONTROLADOR
 
-auth_controller = APIRouter(tags=["Authentication"])
+auth_controller = APIRouter(prefix="/auth", tags=["Authentication"])
 
 # Recibe datos, valida con AuthService y devuelve el usuario
 @auth_controller.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

@@ -2,13 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from typing import Generator
 
-URL = "todo:///mysql"
+URL = "mysql+pymysql://root:***REMOVED***@localhost:3306/focusflow"
 
-engine = create_engine(
-    URL,
-    connect_args={"check_same_thread": False},
-    echo=False
-)
+engine = create_engine(URL, echo=False)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

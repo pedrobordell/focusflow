@@ -1,5 +1,5 @@
 from core.security import SecurityService
-from jwt_service import JWTService
+from .jwt_service import JWTService
 from models.user import User
 from repositories.user_repository import UserRepository
 
