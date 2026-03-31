@@ -22,7 +22,7 @@ def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
         security_service=sec_svc
     )
 
-# CONTROLADOR
+# CONTROLLER
 
 auth_controller = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -56,7 +56,7 @@ def login(
             email=request.email,
             password=request.password
         )
-        return TokenResponse(access_token=token)
+        return TokenResponse(access_token=token, token_type="bearer")
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

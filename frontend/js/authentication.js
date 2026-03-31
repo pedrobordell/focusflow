@@ -51,7 +51,7 @@ $(document).ready(function() {
         $(".errorMsg").hide();
 
         if (username.length > 16) {
-            $("#usernameError")
+            $("#usernameError").show();
         }
 
         if (!emailValidation(email)) {
@@ -77,5 +77,5 @@ $(document).ready(function() {
     function emailValidation(email) {
         var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
-    }
+    };
 });

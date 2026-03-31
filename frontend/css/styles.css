@@ -37,7 +37,8 @@ input:-webkit-autofill:active {
 }
 
 .loginHeader, 
-.registerHeader {
+.registerHeader,
+.dashboardHeader {
     margin: 32px 0px;
     text-align: center;
 }
@@ -70,6 +71,11 @@ input:-webkit-autofill:active {
     display: flex;
     align-items: center;
     gap: 12px;
+    text-decoration: none;
+}
+
+.logo a {
+    color: white;
     text-decoration: none;
 }
 
@@ -150,6 +156,15 @@ input:-webkit-autofill:active {
 .textArea input:focus {
     border: 2px solid #4493f8;
     outline: none; 
+}
+
+.calendarArea h3{
+    margin-top: 20px;
+    padding: 30px;
+}
+.calendarArea p{
+    margin-bottom: 400px;
+    padding: 0px 30px;
 }
 
 .errorMsg {
