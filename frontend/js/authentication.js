@@ -17,6 +17,12 @@ $(document).ready(function() {
         }
     });
 
+    var params = new URLSearchParams(window.location.search);
+    var email = params.get('emailLogin');
+    if (email && $('#emailLogin').length) {
+        $('#emailLogin').val(email);
+    }
+
     $("#loginContainer").submit(function(e) {
         var valido = true;
 
