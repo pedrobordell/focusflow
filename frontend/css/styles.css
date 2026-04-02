@@ -105,6 +105,7 @@ input:-webkit-autofill:active {
     color: #ddd;
 }
 
+.logoutBtn,
 .loginBtn {
     color: white;
     background-color: #444;
@@ -113,6 +114,7 @@ input:-webkit-autofill:active {
     font-weight: 600;
 }
 
+.logoutBtn:hover,
 .loginBtn:hover {
     background-color: #666;
 }

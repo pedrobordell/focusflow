@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from core.security import SecurityService
@@ -6,7 +7,7 @@ from db.database import get_db
 from repositories.user_repository import UserRepository
 from services.auth_service import AuthService
 from services.jwt_service import JWTService
-from schemas.user_schema import RegisterRequest, LoginRequest, UserResponse, TokenResponse
+from schemas.user_schema import RegisterRequest, LoginRequest, UserResponse, TokenResponse, LogoutResponse
 
 SECRET_KEY = "***REMOVED***"
 
@@ -21,6 +22,26 @@ def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
         jwt_service=jwt_svc, 
         security_service=sec_svc
     )
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    try:
+        payload = auth_service.jwt_service.verify_token(token)
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Couldn't validate credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
 # CONTROLLER
 
@@ -62,3 +83,7 @@ def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e)
         )
+    
+@auth_controller.post("/logout", response_model=LogoutResponse, status_code=status.HTTP_200_OK)
+def logout(current_user = Depends(get_current_user)):
+    return {"message": "Logout successful"}

@@ -1,6 +1,6 @@
 $(document).ready(function() {
     
-    registerForm = document.getElementById("registerContainer")
+    var registerForm = document.getElementById("registerContainer")
 
     if(registerForm) {
         registerForm.addEventListener("submit", async (e) => {
@@ -38,7 +38,7 @@ $(document).ready(function() {
         });
     }
 
-    loginForm = document.getElementById("loginContainer");
+    var loginForm = document.getElementById("loginContainer");
 
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
@@ -71,6 +71,30 @@ $(document).ready(function() {
                 console.error(error);
                 alert("Error connecting to server");
             }
+        });
+    }
+
+    var logoutBtn = document.getElementById("logoutBtn");
+
+    if(logoutBtn) {
+        logoutBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            var token = localStorage.getItem("token");
+            if(token) {
+                try {
+                    await fetch("http://localhost:8000/auth/logout", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer ${token}"
+                        }
+                    });
+                } catch (error) {
+                    console.log("Error al comunicar con el servidor:", error);
+                }
+            }
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
         });
     }
 });
