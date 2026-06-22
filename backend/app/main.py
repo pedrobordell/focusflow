@@ -11,8 +11,8 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"],          # Demo local. En producción: listar orígenes concretos.
+    allow_credentials=False,      # Se usa Bearer token en cabecera, no cookies.
     allow_methods=["*"],
     allow_headers=["*"],
 )

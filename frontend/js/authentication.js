@@ -1,87 +1,24 @@
+// Validación de email reutilizable (global; la usa también api.js)
+function emailValidation(email) {
+    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
 $(document).ready(function() {
 
+    // Landing (index.html): valida el email antes de redirigir a login.html
     $("#indexContainer").submit(function(e) {
-        var valido = true;
-
-        var email = $("#emailLogin").val();
-        
         $(".errorMsg").hide();
-
-        if (!emailValidation(email)) {
+        if (!emailValidation($("#emailLogin").val())) {
             $("#errorEmail").show();
-            valido = false;
-        }
-
-        if (!valido) {
             e.preventDefault();
         }
     });
 
+    // Si llega ?emailLogin=... (desde la landing o tras registrarse), rellena el email
     var params = new URLSearchParams(window.location.search);
     var email = params.get('emailLogin');
     if (email && $('#emailLogin').length) {
         $('#emailLogin').val(email);
     }
-
-    $("#loginContainer").submit(function(e) {
-        var valido = true;
-
-        var email = $("#emailLogin").val();
-        var password = $("#passwordLogin").val();
-
-        $(".errorMsg").hide();
-
-        if (!emailValidation(email)) {
-            $("#emailError").show();
-            valido = false;
-        }
-
-        if (password.length < 6) {
-            $("#passwordError").show();
-            valido = false;
-        }
-
-        if (!valido) {
-            e.preventDefault();
-        }
-    });
-
-    $("#registerContainer").submit(function(e) {
-        var valido = true;
-
-        var username = $("#usernameRegister").val();
-        var email = $("#emailRegister").val();
-        var password = $("#passwordRegister").val();
-        var pConfirm = $("#pConfirmRegister").val();
-
-        $(".errorMsg").hide();
-
-        if (username.length > 16) {
-            $("#usernameError").show();
-        }
-
-        if (!emailValidation(email)) {
-            $("#emailError").show();
-            valido = false;
-        }
-
-        if (password.length < 6) {
-            $("#passwordError").show();
-            valido = false;
-        }
-
-        if (password !== pConfirm) {
-            $("#pConfirmError").show();
-            valido = false;
-        }
-
-        if (!valido) {
-            e.preventDefault();
-        }
-    });
-
-    function emailValidation(email) {
-        var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return regex.test(email);
-    };
 });

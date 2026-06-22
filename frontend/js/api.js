@@ -1,36 +1,51 @@
-$(document).ready(function() {
-    
-    var registerForm = document.getElementById("registerContainer")
+const API_BASE = "http://localhost:8000";
 
-    if(registerForm) {
+// Extrae un mensaje legible de una respuesta de error de FastAPI.
+// detail puede ser un string (400/401) o una lista de errores de validación (422).
+function extractError(data) {
+    if (!data || !data.detail) return null;
+    if (typeof data.detail === "string") return data.detail;
+    if (Array.isArray(data.detail)) return data.detail.map(function(d) { return d.msg; }).join("\n");
+    return null;
+}
+
+$(document).ready(function() {
+
+    // REGISTRO
+    var registerForm = document.getElementById("registerContainer");
+    if (registerForm) {
         registerForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            var username = document.getElementById("usernameRegister").value;
-            var email = document.getElementById("emailRegister").value;
-            var password = document.getElementById("passwordRegister").value;
-            
-            try {
-                var response = await fetch("http://localhost:8000/auth/register", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        password: password
-                    })
-                });
 
+            var username = $("#usernameRegister").val();
+            var email = $("#emailRegister").val();
+            var password = $("#passwordRegister").val();
+            var pConfirm = $("#pConfirmRegister").val();
+
+            // Validación en cliente (el servidor vuelve a validar)
+            $(".errorMsg").hide();
+            var valid = true;
+            if (username.length < 3 || username.length > 50) { $("#usernameError").show(); valid = false; }
+            if (!emailValidation(email)) { $("#emailError").show(); valid = false; }
+            if (password.length < 6) { $("#passwordError").show(); valid = false; }
+            if (password !== pConfirm) { $("#pConfirmError").show(); valid = false; }
+            if (!valid) return;
+
+            try {
+                var response = await fetch(`${API_BASE}/auth/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: username, email: email, password: password })
+                });
                 var data = await response.json();
-                
+
                 if (response.ok) {
-                    localStorage.setItem("token", data.access_token);
-                    window.location.href = "login.html";
+                    // El registro NO devuelve token; se inicia sesión por separado.
+                    // Redirigimos a login con el email prefijado.
+                    window.location.href = "login.html?emailLogin=" + encodeURIComponent(email);
                 } else {
-                    alert(data.detail || "Registration failed");
+                    alert(extractError(data) || "Registration failed");
                 }
-                
             } catch (error) {
                 console.error(error);
                 alert("Error connecting to server");
@@ -38,35 +53,35 @@ $(document).ready(function() {
         });
     }
 
+    // LOGIN
     var loginForm = document.getElementById("loginContainer");
-
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            var email = document.getElementById("emailLogin").value;
-            var password = document.getElementById("passwordLogin").value;
-        
+
+            var email = $("#emailLogin").val();
+            var password = $("#passwordLogin").val();
+
+            $(".errorMsg").hide();
+            var valid = true;
+            if (!emailValidation(email)) { $("#emailError").show(); valid = false; }
+            if (password.length < 6) { $("#passwordError").show(); valid = false; }
+            if (!valid) return;
+
             try {
-                var response = await fetch("http://localhost:8000/auth/login", {
+                var response = await fetch(`${API_BASE}/auth/login`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email, password: password })
                 });
-        
                 var data = await response.json();
-        
+
                 if (response.ok) {
                     localStorage.setItem("token", data.access_token);
                     window.location.href = "dashboard.html";
                 } else {
-                    alert(data.detail || "Login failed");
+                    alert(extractError(data) || "Login failed");
                 }
-        
             } catch (error) {
                 console.error(error);
                 alert("Error connecting to server");
@@ -74,19 +89,19 @@ $(document).ready(function() {
         });
     }
 
+    // LOGOUT
     var logoutBtn = document.getElementById("logoutBtn");
-
-    if(logoutBtn) {
+    if (logoutBtn) {
         logoutBtn.addEventListener("click", async (e) => {
             e.preventDefault();
             var token = localStorage.getItem("token");
-            if(token) {
+            if (token) {
                 try {
-                    await fetch("http://localhost:8000/auth/logout", {
+                    await fetch(`${API_BASE}/auth/logout`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": "Bearer ${token}"
+                            "Authorization": `Bearer ${token}`
                         }
                     });
                 } catch (error) {

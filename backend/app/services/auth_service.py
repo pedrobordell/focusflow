@@ -34,3 +34,18 @@ class AuthService:
         if not user or not self.security_service.verify_password(password, user.password):
             raise ValueError("Invalid credentials")
         return self.jwt_service.generate_jwt(user.id)
+
+    # Resuelve el usuario autenticado a partir de un JWT (para endpoints protegidos)
+    def get_user_by_token(self, token: str) -> User:
+        payload = self.jwt_service.verify_token(token)  # lanza ValueError si es inválido o ha expirado
+        subject = payload.get("sub")
+        if subject is None:
+            raise ValueError("Invalid token")
+        try:
+            user_id = int(subject)
+        except (TypeError, ValueError):
+            raise ValueError("Invalid token")
+        user = self.user_repo.get_by_id(user_id)
+        if user is None:
+            raise ValueError("User not found")
+        return user
