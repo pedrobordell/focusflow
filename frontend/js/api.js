@@ -11,6 +11,12 @@ function extractError(data) {
 
 $(document).ready(function() {
 
+    // Guardia de sesión: el dashboard requiere token; si no hay, volver a login
+    if (document.getElementById("dashboardContainer") && !localStorage.getItem("token")) {
+        window.location.href = "login.html";
+        return;
+    }
+
     // REGISTRO
     var registerForm = document.getElementById("registerContainer");
     if (registerForm) {

@@ -3,27 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Aplica el tema guardado antes de pintar para evitar parpadeo
+        if (localStorage.getItem("theme") === "light") {
+            document.documentElement.classList.add("light");
+        }
+    </script>
     <title>FocusFlow - Eslogan todo</title>
-    <link rel="stylesheet" href="css/styles.css"></link>
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" sizes="48x48" type="image/png" href="img/favicons.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/theme.js"></script>
     <script src="js/authentication.js"></script>
     <script src="js/api.js"></script>
 </head>
 <body>
     <header class="mainHeader"> 
         <div class="container">
-            <div class="navegation">
+            <div class="navigation">
                 <div class="logo">
                     <h1><a href="index.html">FocusFlow</a></h1>
                     <img src="img/favicons.png" width="64">
                 </div>
                 <nav class="menu">
                     <ul>
-                        <li><a href="todo.html" class="loginBtn">Todo</a></li>
-                        <li><a href="todo.html" class="loginBtn">Todo</a></li>
+                        <li><a href="#" class="loginBtn">Todo</a></li>
+                        <li><a href="#" class="loginBtn">Todo</a></li>
                         <li><a id="logoutBtn" class="logoutBtn">Logout</a></li>
+                        <li><button type="button" id="themeToggle" class="themeToggle" aria-label="Toggle theme">☀</button></li>
                     </ul>
                 </nav>
             </div>
@@ -34,7 +42,7 @@
         <div class="container">
             <div class="dashboardContainer" id="dashboardContainer" name="dashboardContainer">
                 <div class="dashboardHeader">
-                    <h2>Bienvenido a tu Dashboard</h2>
+                    <h2>Welcome to your Dashboard</h2>
                 </div>
                 <div class="calendarArea">
                     <h3>Calendar</h3>
@@ -44,7 +52,7 @@
         </div>
     </section>
 
-    <footer class="footer">        
+    <footer>        
         <div class="footerTop">
             <div class="footerColumn">
                 <div class="footerLogo">
@@ -55,17 +63,17 @@
             <div class="footerColumn">
                 <h4>Company</h4>
                 <ul>
-                    <li><a href="todo.php">About us</a></li>
-                    <li><a href="todo.php">Security</a></li>
-                    <li><a href="todo.php">Terms & Privacy</a></li>
+                    <li><a href="#">About us</a></li>
+                    <li><a href="#">Security</a></li>
+                    <li><a href="#">Terms & Privacy</a></li>
                 </ul>
             </div>
             <div class="footerColumn">
                 <h4>Quick links</h4>
                 <ul>
-                    <li><a href="todo.php">Todo</a></li>
-                    <li><a href="todo.php">Todo</a></li>
-                    <li><a href="todo.php">Todo</a></li>
+                    <li><a href="#">Todo</a></li>
+                    <li><a href="#">Todo</a></li>
+                    <li><a href="#">Todo</a></li>
                 </ul>
             </div>
         </div>

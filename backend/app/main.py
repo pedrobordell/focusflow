@@ -6,13 +6,14 @@ from db.database import engine
 from models.user import Base
 from controllers.auth_controller import auth_controller
 
-# Inicializar la base de datos y crear la app
+# Crea las tablas que falten
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # Demo local. En producción: listar orígenes concretos.
-    allow_credentials=False,      # Se usa Bearer token en cabecera, no cookies.
+    allow_origins=["*"],
+    allow_credentials=False,      # Usa Bearer token en cabecera, no cookies.
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -25,7 +26,7 @@ app.include_router(auth_controller)
 def root():
     return {"Server running successfully"}
 
-# Inicializa FastAPI
+# Inicializa FastAPI en el servidor uvicorn
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
 

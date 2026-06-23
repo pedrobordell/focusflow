@@ -4,19 +4,74 @@
     box-sizing: border-box;
 }
 
+/* ===== Variables de tema ===== */
+:root {                      /* OSCURO (por defecto) */
+    --bg: #1a1a1a;
+    --text: #ffffff;
+    --header-bg: rgba(0, 0, 0, 0.5);
+    --header-shadow: grey;
+    --footer-bg: #000000;
+    --footer-text: #dddddd;
+    --muted: #999999;
+    --divider: #333333;
+    --input-bg: #000000;
+    --input-border: #222222;
+    --btn-bg: #444444;
+    --btn-bg-hover: #666666;
+    --btn-text: #ffffff;
+    --menu-link: #ffffff;
+    --menu-link-hover: #dddddd;
+    --register-bg: #ffffff;
+    --register-text: #000000;
+    --register-hover: #dddddd;
+    --accent: #4493f8;
+    --success: #238636;
+    --success-hover: #29903b;
+    --error: #dc2626;
+}
+
+html.light {                 /* CLARO (override) */
+    --bg: #ffffff;
+    --text: #1a1a1a;
+    --header-bg: rgba(255, 255, 255, 0.6);
+    --header-shadow: #cccccc;
+    --footer-bg: #f2f2f2;
+    --footer-text: #333333;
+    --muted: #666666;
+    --divider: #dddddd;
+    --input-bg: #ffffff;
+    --input-border: #cccccc;
+    --btn-bg: #e2e2e2;
+    --btn-bg-hover: #d0d0d0;
+    --btn-text: #1a1a1a;
+    --menu-link: #1a1a1a;
+    --menu-link-hover: #555555;
+    --register-bg: #1a1a1a;
+    --register-text: #ffffff;
+    --register-hover: #333333;
+}
+
 body {
     font-family: "Inter", sans-serif;
-    color: white;
-    background-color: black;
+    color: var(--text);
+    background-color: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+section {
+    flex: 1;
 }
 
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 1000px black inset !important;
-    -webkit-text-fill-color: white !important;
-    border: 1px solid #4493f8; 
+    -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+    -webkit-text-fill-color: var(--text) !important;
+    border: 1px solid var(--accent);
 }
 
 .mainHeader {
@@ -24,9 +79,8 @@ input:-webkit-autofill:active {
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 1px 3px grey;
-    border-bottom: 0px solid #f0f0f0;
-    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 1px 3px var(--header-shadow);
+    background-color: var(--header-bg);
     backdrop-filter: blur(7px);
 }
 
@@ -36,7 +90,12 @@ input:-webkit-autofill:active {
     padding: 0px 24px;
 }
 
-.loginHeader, 
+.mainHeader .container {
+    max-width: none;
+    padding: 0px 128px;
+}
+
+.loginHeader,
 .registerHeader,
 .dashboardHeader {
     margin: 32px 0px;
@@ -61,7 +120,7 @@ input:-webkit-autofill:active {
     padding: 64px 0px 0px 0px;
 }
 
-.navegation {
+.navigation {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -75,7 +134,7 @@ input:-webkit-autofill:active {
 }
 
 .logo a {
-    color: white;
+    color: var(--text);
     text-decoration: none;
 }
 
@@ -93,7 +152,7 @@ input:-webkit-autofill:active {
 }
 
 .menu a {
-    color: white;
+    color: var(--menu-link);
     text-decoration: none;
     font-size: 15px;
     font-weight: 500;
@@ -102,13 +161,13 @@ input:-webkit-autofill:active {
 }
 
 .menu a:hover {
-    color: #ddd;
+    color: var(--menu-link-hover);
 }
 
 .logoutBtn,
 .loginBtn {
-    color: white;
-    background-color: #444;
+    color: var(--btn-text);
+    background-color: var(--btn-bg);
     padding: 10px 24px;
     border-radius: 8px;
     font-weight: 600;
@@ -116,27 +175,43 @@ input:-webkit-autofill:active {
 
 .logoutBtn:hover,
 .loginBtn:hover {
-    background-color: #666;
+    background-color: var(--btn-bg-hover);
 }
 
 .menu a.registerBtn {
-    color: black;
-    background-color: white;
+    color: var(--register-text);
+    background-color: var(--register-bg);
     padding: 10px 24px;
     border-radius: 8px;
     font-weight: 600;
 }
 
 .menu a.registerBtn:hover {
-    background-color: #ddd;
-}   
+    background-color: var(--register-hover);
+}
+
+.themeToggle {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.themeToggle:hover {
+    background: var(--btn-bg-hover);
+}
 
 .textArea {
     margin-bottom: 24px;
 }
 
 .textArea label {
-    color: white;
+    color: var(--text);
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
@@ -146,18 +221,18 @@ input:-webkit-autofill:active {
 .textArea input {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #222;
+    border: 2px solid var(--input-border);
     border-radius: 8px;
     font-size: 15px;
     transition: border-color 0.2s;
     font-family: inherit;
-    background-color: black;
-    color: white;
+    background-color: var(--input-bg);
+    color: var(--text);
 }
 
 .textArea input:focus {
-    border: 2px solid #4493f8;
-    outline: none; 
+    border: 2px solid var(--accent);
+    outline: none;
 }
 
 .calendarArea h3{
@@ -165,12 +240,12 @@ input:-webkit-autofill:active {
     padding: 30px;
 }
 .calendarArea p{
-    margin-bottom: 400px;
+    margin-bottom: 24px;
     padding: 0px 30px;
 }
 
 .errorMsg {
-    color: #dc2626;
+    color: var(--error);
     font-size: 12px;
     margin-top: 6px;
     display: none;
@@ -178,7 +253,7 @@ input:-webkit-autofill:active {
 
 .submitBtn {
     width: 100%;
-    background: #238636;
+    background: var(--success);
     color: white;
     padding: 16px;
     border: none;
@@ -190,31 +265,31 @@ input:-webkit-autofill:active {
 }
 
 .submitBtn:hover {
-    background-color: #29903b;
+    background-color: var(--success-hover);
 }
 
 .alternativeLink {
     text-align: center;
-    margin-bottom: 236px;
-    color: white;
+    margin-bottom: 24px;
+    color: var(--text);
     font-size: 14px;
 }
 
 .alternativeLinkRegister {
     text-align: center;
-    margin-bottom: 156px;
-    color: white;
+    margin-bottom: 24px;
+    color: var(--text);
     font-size: 14px;
 }
 
 .alternativeLinkRegister a,
 .alternativeLink a {
-    color: #4493f8
+    color: var(--accent)
 }
 
 footer {
-    background-color: #1a1a1a;
-    color: #ddd;
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
     padding: 64px 0 24px;
 }
 
@@ -239,7 +314,7 @@ footer {
 }
 
 .footerColumn p {
-    color: #999;
+    color: var(--muted);
     font-size: 14px;
     line-height: 1.6;
 }
@@ -259,28 +334,28 @@ footer {
 }
 
 .footerColumn a {
-    color: #999;
+    color: var(--muted);
     text-decoration: none;
     font-size: 14px;
     transition: color 0.2s;
 }
 
 .footerColumn a:hover {
-    color: white;
+    color: var(--text);
 }
 
 .footerContacto li {
-    color: #999;
+    color: var(--muted);
     font-size: 14px;
 }
 
 .footerBot {
-    border-top: 1px solid #333;
+    border-top: 1px solid var(--divider);
     padding-top: 24px;
     text-align: center;
 }
 
 .footerBot p {
-    color: #999;
+    color: var(--muted);
     font-size: 14px;
 }

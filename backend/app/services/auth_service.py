@@ -5,6 +5,7 @@ from repositories.user_repository import UserRepository
 
 class AuthService:
 
+    # Recibe el repositorio, jwt y seguridad
     def __init__(
         self, 
         user_repo: UserRepository, 
@@ -35,9 +36,9 @@ class AuthService:
             raise ValueError("Invalid credentials")
         return self.jwt_service.generate_jwt(user.id)
 
-    # Resuelve el usuario autenticado a partir de un JWT (para endpoints protegidos)
+    # Verifica el token, busca el usuario por id y lo devuelve.
     def get_user_by_token(self, token: str) -> User:
-        payload = self.jwt_service.verify_token(token)  # lanza ValueError si es inválido o ha expirado
+        payload = self.jwt_service.verify_token(token)  # inválido -> ValueError
         subject = payload.get("sub")
         if subject is None:
             raise ValueError("Invalid token")

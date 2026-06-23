@@ -12,5 +12,6 @@ class User(Base) :
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
 
+    # Mejora cómo se ve el objeto al depurar (no incluye la contraseña)
     def __repr__(self) -> str:
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"

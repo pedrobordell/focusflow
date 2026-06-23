@@ -10,7 +10,7 @@ $(document).ready(function() {
     $("#indexContainer").submit(function(e) {
         $(".errorMsg").hide();
         if (!emailValidation($("#emailLogin").val())) {
-            $("#errorEmail").show();
+            $("#emailError").show();
             e.preventDefault();
         }
     });

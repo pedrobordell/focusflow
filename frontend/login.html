@@ -1,20 +1,27 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Aplica el tema guardado antes de pintar para evitar parpadeo
+        if (localStorage.getItem("theme") === "light") {
+            document.documentElement.classList.add("light");
+        }
+    </script>
     <title>FocusFlow - Eslogan todo</title>
-    <link rel="stylesheet" href="css/styles.css"></link>
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" sizes="48x48" type="image/png" href="img/favicons.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/theme.js"></script>
     <script src="js/authentication.js"></script>
     <script src="js/api.js"></script>
 </head>
 <body>
     <header class="mainHeader"> 
         <div class="container">
-            <div class="navegation">
+            <div class="navigation">
                 <div class="logo">
                     <h1><a href="index.html">FocusFlow</a></h1>
                     <img src="img/favicons.png" width="64">
@@ -23,6 +30,7 @@
                     <ul>
                         <li><a href="login.html" class="loginBtn">Login</a></li>
                         <li><a href="register.html" class="registerBtn">Register</a></li>
+                        <li><button type="button" id="themeToggle" class="themeToggle" aria-label="Toggle theme">☀</button></li>
                     </ul>
                 </nav>
             </div>
@@ -37,7 +45,7 @@
                 </div>
                 <div class="textArea">
                     <label for="emailLogin">Email address</label>
-                    <input type="text" id="emailLogin" name="emailLogin" required>
+                    <input type="email" id="emailLogin" name="emailLogin" required>
                     <span class="errorMsg" id="emailError">Invalid email</span>
                 </div>
                 <div class="textArea">
@@ -53,7 +61,7 @@
         </div>
     </section>
 
-    <footer class="footer">        
+    <footer>        
         <div class="footerTop">
             <div class="footerColumn">
                 <div class="footerLogo">
@@ -64,9 +72,9 @@
             <div class="footerColumn">
                 <h4>Company</h4>
                 <ul>
-                    <li><a href="todo.php">About us</a></li>
-                    <li><a href="todo.php">Security</a></li>
-                    <li><a href="todo.php">Terms & Privacy</a></li>
+                    <li><a href="#">About us</a></li>
+                    <li><a href="#">Security</a></li>
+                    <li><a href="#">Terms & Privacy</a></li>
                 </ul>
             </div>
             <div class="footerColumn">

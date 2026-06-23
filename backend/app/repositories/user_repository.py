@@ -9,6 +9,7 @@ class UserRepository:
     def __init__(self, session: Session):
         self.session = session
 
+    # Crea el usuario, lo añade a Session, lo commitea a la BD y lo devuelve con su id
     def create_user(self, username: str, email: str, password: str) -> User:
         new_user = User(
             username=username,

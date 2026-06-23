@@ -25,6 +25,7 @@ if not SECRET_KEY:
 
 # DEPENDENCIAS
 
+# Pide una Session, monta el repo con ella y crea los servicios
 def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
     repo = UserRepository(session=db)
     jwt_svc = JWTService(secret_key=SECRET_KEY)
@@ -35,7 +36,10 @@ def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
         security_service=sec_svc
     )
 
+# Lee el token del header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+# Extrae el token, pide al servicio el usuario y develve el user
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     auth_service: AuthService = Depends(get_auth_service)
