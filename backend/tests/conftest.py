@@ -13,7 +13,7 @@ from sqlalchemy.pool import StaticPool
 
 import main
 from db.database import get_db
-from models.user import Base
+from models import Base
 
 
 @pytest.fixture()

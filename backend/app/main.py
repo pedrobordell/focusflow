@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from db.database import engine
-from models.user import Base
+from models import Base
 from controllers.auth_controller import auth_controller
 
 # Crea las tablas que falten

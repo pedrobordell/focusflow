@@ -9,7 +9,7 @@
             document.documentElement.classList.add("light");
         }
     </script>
-    <title>FocusFlow - Eslogan todo</title>
+    <title>FocusFlow - My Profile</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" sizes="48x48" type="image/png" href="img/favicons.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -18,9 +18,10 @@
     <script src="js/authentication.js"></script>
     <script src="js/api.js"></script>
     <script src="js/nav.js"></script>
+    <script src="js/profile.js"></script>
 </head>
 <body>
-    <header class="mainHeader"> 
+    <header class="mainHeader">
         <div class="container">
             <div class="navigation">
                 <div class="navLeft">
@@ -50,19 +51,44 @@
 
     <section>
         <div class="container">
-            <div class="dashboardContainer" id="dashboardContainer" name="dashboardContainer">
+            <div class="profileContainer" id="profileContainer" name="profileContainer">
                 <div class="dashboardHeader">
-                    <h2>Welcome to your Dashboard</h2>
+                    <h2>My Profile</h2>
                 </div>
-                <div class="calendarArea">
-                    <h3>Calendar</h3>
-                    <p>todo</p>
+                <div class="profileGrid">
+                    <!-- Sección 1: datos de la cuenta (solo lectura) + selector de tema -->
+                    <div class="profileCard">
+                        <h3>Account</h3>
+                        <div class="profileField">
+                            <label>Username</label>
+                            <p id="profileUsername">—</p>
+                        </div>
+                        <div class="profileField">
+                            <label>Email</label>
+                            <p id="profileEmail">—</p>
+                        </div>
+                        <div class="profileField">
+                            <label for="themeSelect">Theme</label>
+                            <select id="themeSelect">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Sección 2: andamiaje para los mensajes no leídos (lógica futura) -->
+                    <div class="profileCard">
+                        <h3>Unread messages</h3>
+                        <div id="unreadMessages">
+                            <!-- TODO: subsistema de mensajes - inyectar aquí los Message con is_read = false -->
+                            <p class="emptyState">No unread messages</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer>        
+    <footer>
         <div class="footerTop">
             <div class="footerColumn">
                 <div class="footerLogo">
@@ -81,8 +107,8 @@
             <div class="footerColumn">
                 <h4>Quick links</h4>
                 <ul>
-                    <li><a href="#">Todo</a></li>
-                    <li><a href="#">Todo</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="profile.html">Profile</a></li>
                     <li><a href="#">Todo</a></li>
                 </ul>
             </div>

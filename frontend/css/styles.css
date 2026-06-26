@@ -206,6 +206,110 @@ input:-webkit-autofill:active {
     background: var(--btn-bg-hover);
 }
 
+/* ===== Navegación: secciones (hamburguesa) y subsecciones ===== */
+.navLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;          /* ancla del panel desplegable */
+}
+
+.navToggle {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.navToggle:hover {
+    background: var(--btn-bg-hover);
+}
+
+.navLink.active {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Cajón lateral de secciones (entra desde la izquierda) */
+.sectionMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background-color: var(--bg);
+    border-right: 1px solid var(--divider);
+    padding: 24px;
+    z-index: 1200;                /* por encima del header (1000) */
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%); /* oculto fuera de pantalla; el ancho lo pone JS */
+    transition: transform 0.25s ease;
+}
+
+.sectionMenu.open {
+    transform: translateX(0);
+}
+
+.sectionMenuHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sectionMenuTitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.sectionMenuClose {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+
+.sectionMenuClose:hover {
+    color: var(--muted);
+}
+
+.sectionList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 24px;
+}
+
+.sectionItem {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.sectionItem:hover {
+    background-color: var(--btn-bg);
+}
+
+.sectionItem.active {
+    color: var(--accent);
+    font-weight: 600;
+}
+
 .textArea {
     margin-bottom: 24px;
 }
@@ -285,6 +389,74 @@ input:-webkit-autofill:active {
 .alternativeLinkRegister a,
 .alternativeLink a {
     color: var(--accent)
+}
+
+/* ===== Perfil ===== */
+.profileGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 64px;
+}
+
+.profileCard {
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.profileCard h3 {
+    margin-bottom: 24px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.profileField {
+    margin-bottom: 24px;
+}
+
+.profileField label {
+    color: var(--text);
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.profileField p {
+    color: var(--text);
+    font-size: 15px;
+}
+
+.profileField select {
+    width: auto;
+    min-width: 140px;
+    padding: 10px 12px;
+    border: 2px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    background-color: var(--input-bg);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.profileField select:focus {
+    border: 2px solid var(--accent);
+    outline: none;
+}
+
+.emptyState {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* Apila las dos secciones en pantallas estrechas */
+@media (max-width: 768px) {
+    .profileGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
 footer {
