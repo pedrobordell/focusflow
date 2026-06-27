@@ -459,6 +459,175 @@ input:-webkit-autofill:active {
     }
 }
 
+/* ===== Add habit (formulario) ===== */
+.habitForm {
+    max-width: 480px;
+    margin: 0 auto 64px;
+}
+
+.textArea select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    background-color: var(--input-bg);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.textArea select:focus {
+    border: 2px solid var(--accent);
+    outline: none;
+}
+
+/* El placeholder "-- Select a category --" se muestra más apagado (lo activa el JS) */
+.textArea select.placeholder {
+    color: var(--muted);
+}
+
+.rangeRow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Slider personalizado: el relleno lo controla --range-progress (lo fija el JS),
+   así llega al 0% en Low y al 100% en High, independiente del ancho del pulgar. */
+.rangeRow input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    height: 18px;            /* alto suficiente para el pulgar */
+    cursor: pointer;
+}
+
+.rangeRow input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(to right,
+        var(--accent) var(--range-progress, 50%),
+        var(--input-border) var(--range-progress, 50%));
+}
+
+.rangeRow input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    margin-top: -6px;        /* centra el pulgar sobre la pista de 6px */
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+.rangeRow input[type="range"]::-moz-range-track {
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(to right,
+        var(--accent) var(--range-progress, 50%),
+        var(--input-border) var(--range-progress, 50%));
+}
+
+.rangeRow input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+.rangeValue {
+    min-width: 64px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.formActions {
+    display: flex;
+    gap: 16px;
+}
+
+.formActions .submitBtn {
+    width: auto;
+    flex: 1;
+}
+
+.cancelBtn {
+    flex: 1;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.cancelBtn:hover {
+    background: var(--btn-bg-hover);
+}
+
+/* ===== Habit List (tabla) ===== */
+.habitTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 64px;
+}
+
+.habitTable th,
+.habitTable td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--divider);
+}
+
+.habitTable th {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.habitTable tbody tr:hover {
+    background-color: var(--btn-bg);
+}
+
+/* Columnas de iconos: estrechas y centradas */
+.habitTable .iconCol {
+    width: 1%;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.iconLink,
+.iconBtn {
+    background: none;
+    border: none;
+    padding: 4px 6px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: transform 0.1s, background-color 0.2s;
+}
+
+.iconLink:hover,
+.iconBtn:hover {
+    background-color: var(--btn-bg-hover);
+}
+
+.iconBtnDanger:hover {
+    background-color: transparent;
+    transform: scale(1.15);
+}
+
 footer {
     background-color: var(--footer-bg);
     color: var(--footer-text);

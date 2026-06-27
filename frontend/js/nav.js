@@ -6,13 +6,25 @@
 const NAV_SECTIONS = [
     {
         id: "user",
-        label: "Usuario",
+        label: "User",
         screens: [
             { label: "Dashboard", href: "dashboard.html" },
             { label: "Profile", href: "profile.html" },
         ],
     },
-    // Futuras: habits, calendar, stats, ai, messages
+    {
+        id: "habits",
+        label: "Habits",
+        screens: [
+            { label: "Add habit", href: "add-habit.html" },
+            { label: "Habit List", href: "habit-list.html" },
+            { label: "Statistics", href: "statistics.html" },
+            // Pantalla de detalle: pertenece a Habits para la navegación pero no se
+            // muestra como subsección en el header.
+            { label: "Edit habit", href: "edit-habit.html", hidden: true },
+        ],
+    },
+    // Futuras: calendar, stats, ai, messages
 ];
 
 $(document).ready(function () {
@@ -29,6 +41,7 @@ $(document).ready(function () {
 
     // Subsecciones (pantallas) de la sección actual -> header
     currentSection.screens.forEach(function (screen) {
+        if (screen.hidden) return; // pantallas de detalle no van en el header
         var isActive = screen.href === currentFile;
         $("<li>").append(
             $("<a>")

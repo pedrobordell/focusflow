@@ -11,8 +11,10 @@ function extractError(data) {
 
 $(document).ready(function() {
 
-    // Guardia de sesión: el dashboard requiere token; si no hay, volver a login
-    if (document.getElementById("dashboardContainer") && !localStorage.getItem("token")) {
+    // Guardia de sesión: las páginas protegidas requieren token; si no hay, volver a login.
+    // Cubre el dashboard y cualquier contenedor marcado con la clase .requiresAuth.
+    var requiresAuth = document.getElementById("dashboardContainer") || document.querySelector(".requiresAuth");
+    if (requiresAuth && !localStorage.getItem("token")) {
         window.location.href = "login.html";
         return;
     }
