@@ -14,14 +14,16 @@ const NAV_SECTIONS = [
     },
     {
         id: "habits",
-        label: "Habits",
+        label: "Habits and Sessions",
         screens: [
             { label: "Add habit", href: "add-habit.html" },
             { label: "Habit List", href: "habit-list.html" },
             { label: "Statistics", href: "statistics.html" },
-            // Pantalla de detalle: pertenece a Habits para la navegación pero no se
-            // muestra como subsección en el header.
+            { label: "Add session", href: "add-session.html" },
+            // Pantallas de detalle: pertenecen a la sección para la navegación pero no se
+            // muestran como subsecciones en el header.
             { label: "Edit habit", href: "edit-habit.html", hidden: true },
+            { label: "Edit session", href: "edit-session.html", hidden: true },
         ],
     },
     // Futuras: calendar, stats, ai, messages

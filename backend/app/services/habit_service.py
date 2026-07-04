@@ -5,11 +5,11 @@ from repositories.habit_repository import HabitRepository
 
 class HabitService:
 
-    # Recibe el repositorio de hábitos
+    # Recibe el HabitRepository
     def __init__(self, habit_repo: HabitRepository):
         self.habit_repo = habit_repo
 
-    # Crea un hábito asociado al usuario autenticado
+    # Crea un hábito asociado a un usuario
     def create_habit(
         self,
         user_id: int,
@@ -24,19 +24,19 @@ class HabitService:
             importance=importance
         )
 
-    # Lista los hábitos del usuario autenticado
+    # Lista los hábitos del usuario
     def list_habits(self, user_id: int) -> list[Habit]:
         return self.habit_repo.get_by_user(user_id)
 
-    # Obtiene un hábito comprobando que pertenece al usuario.
-    # Si no existe o no es suyo -> ValueError (el controller lo traduce a 404).
+    # Obtiene un hábito comprobando que pertenece al usuario
+    # Si no existe o no es suyo -> ValueError que el controller lo traducirá a 404
     def get_habit(self, habit_id: int, user_id: int) -> Habit:
         habit = self.habit_repo.get_by_id(habit_id)
         if habit is None or habit.user_id != user_id:
             raise ValueError("Habit not found")
         return habit
 
-    # Actualiza un hábito propio (reemplaza todos los campos)
+    # Edita un hábito propio
     def update_habit(
         self,
         habit_id: int,

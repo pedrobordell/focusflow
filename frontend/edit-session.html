@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Aplica el tema guardado antes de pintar para evitar parpadeo
+        if (localStorage.getItem("theme") === "light") {
+            document.documentElement.classList.add("light");
+        }
+    </script>
+    <title>FocusFlow - Edit session</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" sizes="48x48" type="image/png" href="img/favicons.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/authentication.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/session-form.js"></script>
+    <script src="js/edit-session.js"></script>
+</head>
+<body>
+    <header class="mainHeader">
+        <div class="container">
+            <div class="navigation">
+                <div class="navLeft">
+                    <button type="button" id="navToggle" class="navToggle" aria-label="Open sections" aria-expanded="false">☰</button>
+                    <div class="logo">
+                        <h1><a href="index.html">FocusFlow</a></h1>
+                        <img src="img/favicons.png" width="64">
+                    </div>
+                    <div id="sectionMenu" class="sectionMenu" role="menu" aria-hidden="true">
+                        <div class="sectionMenuHeader">
+                            <h2 class="sectionMenuTitle">FocusFlow</h2>
+                            <button type="button" id="sectionMenuClose" class="sectionMenuClose" aria-label="Close menu">✕</button>
+                        </div>
+                        <nav class="sectionList" id="sectionList"></nav>
+                    </div>
+                </div>
+                <nav class="menu">
+                    <ul id="subsectionNav" class="subsectionNav"></ul>
+                    <ul class="menuActions">
+                        <li><a id="logoutBtn" class="logoutBtn">Logout</a></li>
+                        <li><button type="button" id="themeToggle" class="themeToggle" aria-label="Toggle theme">☀</button></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <div class="requiresAuth" id="editSessionContainer">
+                <div class="dashboardHeader">
+                    <h2>Edit Session</h2>
+                </div>
+                <form class="habitForm" id="editSessionForm" name="editSessionForm">
+                    <div class="textArea">
+                        <label for="sessionHabit">Select Habit</label>
+                        <select id="sessionHabit" name="sessionHabit">
+                            <option value="" disabled selected>-- Select a habit --</option>
+                        </select>
+                    </div>
+
+                    <div class="sessionBlock" id="editSessionBlock">
+                        <div class="textArea">
+                            <label>Edit day</label>
+                            <input type="date" class="sessionDate">
+                        </div>
+                        <div class="sessionTimes">
+                            <div class="textArea">
+                                <label>Edit start time</label>
+                                <input type="time" class="sessionStart">
+                            </div>
+                            <div class="textArea">
+                                <label>Edit end time</label>
+                                <input type="time" class="sessionEnd">
+                            </div>
+                        </div>
+                        <button type="button" class="recurrenceToggle" aria-pressed="false">Add weekly recurrence</button>
+                        <div class="recurrenceLimit" hidden>
+                            <div class="textArea">
+                                <label>Repeat until</label>
+                                <input type="date" class="sessionUntil">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submitBtn" id="editSessionSubmit">Save session</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footerTop">
+            <div class="footerColumn">
+                <div class="footerLogo">
+                    <h3>FocusFlow</h3>
+                </div>
+                <p>Slogan todo</p>
+            </div>
+            <div class="footerColumn">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About us</a></li>
+                    <li><a href="#">Security</a></li>
+                    <li><a href="#">Terms & Privacy</a></li>
+                </ul>
+            </div>
+            <div class="footerColumn">
+                <h4>Quick links</h4>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="#">Todo</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footerBot">
+            <p>&copy; 2026 FocusFlow. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

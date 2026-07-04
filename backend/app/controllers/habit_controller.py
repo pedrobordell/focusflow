@@ -10,7 +10,7 @@ from schemas.habit_schema import HabitCreateRequest, HabitUpdateRequest, HabitRe
 
 # DEPENDENCIAS
 
-# Pide una Session, monta el repo con ella y crea el servicio
+# Pide una Session (de la BD), monta el repo con ella y crea el servicio
 def get_habit_service(db: Session = Depends(get_db)) -> HabitService:
     repo = HabitRepository(session=db)
     return HabitService(habit_repo=repo)
@@ -19,7 +19,8 @@ def get_habit_service(db: Session = Depends(get_db)) -> HabitService:
 
 habit_controller = APIRouter(prefix="/habits", tags=["Habits"])
 
-# Crea un hábito para el usuario autenticado (el user_id sale del token, no del body)
+# Crea un hábito para el usuario.
+# Autentica el usuario mediante el user_id del token, no del body
 @habit_controller.post("", response_model=HabitResponse, status_code=status.HTTP_201_CREATED)
 def create_habit(
     request: HabitCreateRequest,

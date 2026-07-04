@@ -572,6 +572,105 @@ input:-webkit-autofill:active {
     background: var(--btn-bg-hover);
 }
 
+/* ===== Add session (formulario) ===== */
+/* Cada sesión a crear es una "tarjeta" con su día, horas y recurrencia opcional. */
+.sessionBlock {
+    border: 1px solid var(--divider);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Hora de inicio y fin, una al lado de la otra */
+.sessionTimes {
+    display: flex;
+    gap: 16px;
+}
+
+.sessionTimes .textArea {
+    flex: 1;
+}
+
+/* Botón toggle "Add weekly recurrence": outline cuando está inactivo, lleno (accent) al activarse */
+.recurrenceToggle {
+    background: transparent;
+    color: var(--text);
+    border: 2px solid var(--input-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.recurrenceToggle:hover {
+    border-color: var(--accent);
+}
+
+.recurrenceToggle[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.recurrenceLimit {
+    margin-top: 16px;
+}
+
+.removeSessionBtn {
+    display: block;
+    margin-top: 16px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.2s;
+}
+
+.removeSessionBtn:hover {
+    color: var(--error);
+}
+
+/* "+ Add Session": botón secundario de ancho completo, separado del confirmar */
+.addSessionBtn {
+    width: 100%;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 16px;
+    font-family: inherit;
+    transition: background-color 0.3s;
+}
+
+.addSessionBtn:hover {
+    background: var(--btn-bg-hover);
+}
+
+.addSessionBtn:disabled,
+.submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* En pantallas estrechas, apilar las horas de inicio y fin */
+@media (max-width: 600px) {
+    .sessionTimes {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
 /* ===== Habit List (tabla) ===== */
 .habitTable {
     width: 100%;

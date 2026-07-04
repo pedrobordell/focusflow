@@ -29,15 +29,16 @@ class HabitRepository:
         self.session.refresh(new_habit)
         return new_habit
 
-    # Todos los hábitos de un usuario (ordenados por id de creación)
+    # Devuelve todos los hábitos de un usuario (ordenados por id)
     def get_by_user(self, user_id: int) -> list[Habit]:
         stmt = select(Habit).where(Habit.user_id == user_id).order_by(Habit.id)
         return list(self.session.scalars(stmt).all())
 
+    # Devuelve un hábito por id
     def get_by_id(self, habit_id: int) -> Optional[Habit]:
         return self.session.get(Habit, habit_id)
 
-    # Reemplaza los campos del hábito y persiste los cambios
+    # Edita un hábito y confirma los cambios
     def update_habit(
         self,
         habit: Habit,
@@ -52,6 +53,7 @@ class HabitRepository:
         self.session.refresh(habit)
         return habit
 
+    # Borra un hábito y confirma los cambios
     def delete_habit(self, habit: Habit) -> None:
         self.session.delete(habit)
         self.session.commit()
