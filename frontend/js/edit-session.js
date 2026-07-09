@@ -49,6 +49,8 @@ $(document).ready(function () {
                 // El backend devuelve "HH:MM:SS"; el input time espera "HH:MM".
                 block.querySelector(".sessionStart").value = session.start_time.slice(0, 5);
                 block.querySelector(".sessionEnd").value = session.end_time.slice(0, 5);
+                // Marca "Ends next day" si la sesión termina otro día.
+                block.querySelector(".sessionEndsNextDay").checked = session.end_date !== session.date;
             })
             .catch(function (error) {
                 console.error("Error al cargar la sesión:", error);
@@ -79,6 +81,7 @@ $(document).ready(function () {
             body: JSON.stringify({
                 habit_id: habitId,
                 date: s.date,
+                end_date: s.end_date,
                 start_time: s.start_time,
                 end_time: s.end_time
             })
@@ -92,7 +95,7 @@ $(document).ready(function () {
                     if (s.repeat_until && firstExtra <= s.repeat_until) {
                         return createRecurringSeries(habitId, firstExtra, s);
                     }
-                    window.location.href = "habit-list.html";
+                    window.location.href = "calendar.html";
                     return null;
                 }
                 return response.json().then(function (data) {
@@ -117,6 +120,7 @@ $(document).ready(function () {
                 habit_id: habitId,
                 sessions: [{
                     date: firstExtra,
+                    end_date: SessionForm.addDays(firstExtra, (s.end_date !== s.date) ? 1 : 0),
                     start_time: s.start_time,
                     end_time: s.end_time,
                     repeat_until: s.repeat_until
@@ -126,7 +130,7 @@ $(document).ready(function () {
             .then(function (response) {
                 if (response.status === 401) { SessionForm.handleUnauthorized(); return null; }
                 if (response.status === 201) {
-                    window.location.href = "habit-list.html";
+                    window.location.href = "calendar.html";
                     return null;
                 }
                 return response.json().then(function (data) {

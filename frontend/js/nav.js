@@ -9,6 +9,7 @@ const NAV_SECTIONS = [
         label: "User",
         screens: [
             { label: "Dashboard", href: "dashboard.html" },
+            { label: "Calendar", href: "calendar.html" },
             { label: "Profile", href: "profile.html" },
         ],
     },
@@ -26,7 +27,7 @@ const NAV_SECTIONS = [
             { label: "Edit session", href: "edit-session.html", hidden: true },
         ],
     },
-    // Futuras: calendar, stats, ai, messages
+    // Futuras: stats, ai, messages
 ];
 
 $(document).ready(function () {

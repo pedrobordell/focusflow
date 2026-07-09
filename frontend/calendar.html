@@ -9,7 +9,7 @@
             document.documentElement.classList.add("light");
         }
     </script>
-    <title>FocusFlow - Edit session</title>
+    <title>FocusFlow - Calendar</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" sizes="48x48" type="image/png" href="img/favicons.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
     <script src="js/api.js"></script>
     <script src="js/nav.js"></script>
     <script src="js/session-form.js"></script>
-    <script src="js/edit-session.js"></script>
+    <script src="js/calendar.js"></script>
 </head>
 <body>
     <header class="mainHeader">
@@ -52,47 +52,18 @@
 
     <section>
         <div class="container">
-            <div class="requiresAuth" id="editSessionContainer">
+            <div class="requiresAuth" id="calendarContainer">
                 <div class="dashboardHeader">
-                    <h2>Edit Session</h2>
+                    <h2>Calendar</h2>
                 </div>
-                <form class="habitForm" id="editSessionForm" name="editSessionForm">
-                    <div class="textArea">
-                        <label for="sessionHabit">Select Habit</label>
-                        <select id="sessionHabit" name="sessionHabit">
-                            <option value="" disabled selected>-- Select a habit --</option>
-                        </select>
-                    </div>
-
-                    <div class="sessionBlock" id="editSessionBlock">
-                        <div class="textArea">
-                            <label>Edit day</label>
-                            <input type="date" class="sessionDate">
-                        </div>
-                        <div class="sessionTimes">
-                            <div class="textArea">
-                                <label>Edit start time</label>
-                                <input type="time" class="sessionStart">
-                            </div>
-                            <div class="textArea">
-                                <label>Edit end time</label>
-                                <input type="time" class="sessionEnd">
-                            </div>
-                        </div>
-                        <label class="checkboxRow">
-                            <input type="checkbox" class="sessionEndsNextDay"> Ends next day
-                        </label>
-                        <button type="button" class="recurrenceToggle" aria-pressed="false">Add weekly recurrence</button>
-                        <div class="recurrenceLimit" hidden>
-                            <div class="textArea">
-                                <label>Repeat until</label>
-                                <input type="date" class="sessionUntil">
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="submitBtn" id="editSessionSubmit">Save session</button>
-                </form>
+                <div class="weekBar">
+                    <button type="button" class="weekNavBtn" id="prevWeek" aria-label="Previous week">‹</button>
+                    <span class="weekLabel" id="weekLabel"></span>
+                    <button type="button" class="weekNavBtn" id="nextWeek" aria-label="Next week">›</button>
+                    <button type="button" class="weekTodayBtn" id="todayWeek">Return to today</button>
+                </div>
+                <p class="emptyState" id="calendarEmpty" hidden>You have no habits yet — <a href="add-habit.html">create one</a> and <a href="add-session.html">schedule a session</a>.</p>
+                <div class="weekGrid" id="weekGrid"></div>
             </div>
         </div>
     </section>
@@ -118,7 +89,7 @@
                 <ul>
                     <li><a href="dashboard.html">Dashboard</a></li>
                     <li><a href="profile.html">Profile</a></li>
-                    <li><a href="#">Todo</a></li>
+                    <li><a href="add-session.html">Add session</a></li>
                 </ul>
             </div>
         </div>

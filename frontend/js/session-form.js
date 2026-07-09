@@ -65,6 +65,7 @@ window.SessionForm = (function () {
         var date = block.querySelector(".sessionDate").value;
         var start = block.querySelector(".sessionStart").value;
         var end = block.querySelector(".sessionEnd").value;
+        var endsNextDay = block.querySelector(".sessionEndsNextDay").checked;
         var recurrent = block.querySelector(".recurrenceToggle").getAttribute("aria-pressed") === "true";
         var until = block.querySelector(".sessionUntil").value;
         var n = index + 1;
@@ -73,12 +74,16 @@ window.SessionForm = (function () {
             alert("Session " + n + ": please fill in day, start time and end time");
             return null;
         }
-        if (end <= start) {
+        // Solo exigimos fin > inicio si termina el MISMO día. Si termina al día
+        // siguiente, el fin siempre es posterior.
+        if (!endsNextDay && end <= start) {
             alert("Session " + n + ": end time must be after start time");
             return null;
         }
 
-        var session = { date: date, start_time: start, end_time: end, repeat_until: null };
+        var endDate = endsNextDay ? addDays(date, 1) : date;
+
+        var session = { date: date, end_date: endDate, start_time: start, end_time: end, repeat_until: null };
         if (recurrent) {
             if (!until) {
                 alert("Session " + n + ": please choose a 'Repeat until' date");
@@ -102,12 +107,21 @@ window.SessionForm = (function () {
         return d.getFullYear() + "-" + mm + "-" + dd;
     }
 
+    // Fecha de hoy en formato "YYYY-MM-DD" (para autocompletar campos de fecha).
+    function todayStr() {
+        var d = new Date();
+        var mm = String(d.getMonth() + 1).padStart(2, "0");
+        var dd = String(d.getDate()).padStart(2, "0");
+        return d.getFullYear() + "-" + mm + "-" + dd;
+    }
+
     return {
         handleUnauthorized: handleUnauthorized,
         setupHabitPlaceholder: setupHabitPlaceholder,
         loadHabits: loadHabits,
         setupRecurrenceToggle: setupRecurrenceToggle,
         readBlock: readBlock,
-        addDays: addDays
+        addDays: addDays,
+        todayStr: todayStr
     };
 })();

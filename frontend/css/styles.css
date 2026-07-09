@@ -339,14 +339,293 @@ input:-webkit-autofill:active {
     outline: none;
 }
 
-.calendarArea h3{
-    margin-top: 20px;
-    padding: 30px;
+/* ===== Dashboard: horario de hoy ===== */
+
+/* Rejilla de dos mitades: horario a la izquierda, placeholders de estadísticas a la derecha.
+   align-items: stretch (por defecto) iguala la altura de ambas columnas. */
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 64px;
 }
-.calendarArea p{
-    margin-bottom: 24px;
-    padding: 0px 30px;
+
+.todaySchedule {
+    margin: 0;
 }
+
+/* Columna derecha: dos placeholders apilados uno encima de otro. */
+.dashboardStats {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Caja de placeholder (contenido de estadísticas pendiente). flex:1 reparte a
+   partes iguales la altura de la fila (= alto del horario de la izquierda). */
+.statPlaceholder {
+    flex: 1;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    border: 2px dashed var(--divider);
+    border-radius: 8px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.statPlaceholder h3 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.todayHeader {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.todayHeader h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.todayCreateLink {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.todayCreateLink:hover {
+    text-decoration: underline;
+}
+
+.todayList {
+    list-style: none;
+}
+
+.todayItem {
+    margin-bottom: 10px;
+}
+
+.todayLink {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border: 1px solid var(--divider);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    transition: background-color 0.2s;
+}
+
+.todayLink:hover {
+    background-color: var(--btn-bg);
+}
+
+/* Barra izquierda por importancia (1 = baja, 2 = media, 3 = alta) */
+.todayLink.imp1 { border-left-color: #2f9e44; }
+.todayLink.imp2 { border-left-color: #4493f8; }
+.todayLink.imp3 { border-left-color: #e5534b; }
+
+.todayTime {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    min-width: 110px;
+}
+
+.todayName {
+    font-weight: 600;
+}
+
+/* ===== Calendar (vista semanal por horas) ===== */
+.weekBar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.weekNavBtn,
+.weekTodayBtn {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s;
+}
+
+.weekNavBtn:hover,
+.weekTodayBtn:hover {
+    background: var(--btn-bg-hover);
+}
+
+.weekTodayBtn {
+    margin-left: auto;   /* empuja el botón al extremo derecho de la barra */
+}
+
+.weekLabel {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.weekGrid {
+    border: 1px solid var(--divider);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 64px;
+}
+
+/* Cabecera y cuerpo comparten la MISMA rejilla de columnas para alinearse:
+   una columna de horas (60px) + 7 columnas de día iguales. */
+.weekHead,
+.weekBody {
+    display: grid;
+    grid-template-columns: 60px repeat(7, 1fr);
+}
+
+.weekHead {
+    border-bottom: 1px solid var(--divider);
+}
+
+.weekHeadDay {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 4px;
+    text-align: center;
+    border-left: 1px solid var(--divider);
+}
+
+.weekHeadName {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.weekHeadDate {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.weekHeadDay.isToday .weekHeadDate {
+    color: var(--accent);
+}
+
+.hourLabel {
+    display: flex;
+    align-items: center;      /* centrado vertical */
+    justify-content: center;  /* centrado horizontal */
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--divider);
+}
+
+/* La primera etiqueta (00:00) no lleva línea superior */
+.hourLabel:first-child {
+    border-top: none;
+}
+
+.dayCol {
+    position: relative;
+    border-left: 1px solid var(--divider);
+}
+
+/* Celda de hora de fondo: misma línea (border-top 1px) que .hourLabel para que
+   el grosor coincida exactamente con el de la columna de horas. */
+.dayHourCell {
+    border-top: 1px solid var(--divider);
+}
+
+/* La primera no lleva línea, igual que .hourLabel:first-child */
+.dayHourCell:first-child {
+    border-top: none;
+}
+
+.dayCol.isToday {
+    background-color: rgba(68, 147, 248, 0.06);
+}
+
+/* Cada sesión es un "chip" posicionado por hora (top/height los fija el JS) */
+.evt {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    overflow: hidden;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transition: filter 0.15s;
+}
+
+.evtTime {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.evtName {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.evtType {
+    font-size: 11px;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Acciones del chip (editar/borrar): abajo a la derecha */
+.evtActions {
+    margin-top: auto;      /* empuja las acciones al fondo del chip */
+    align-self: flex-end;  /* y a la derecha */
+    display: flex;
+    gap: 2px;
+}
+
+.evtBtn {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: transform 0.1s;
+}
+
+.evtBtn:hover {
+    transform: scale(1.15);
+}
+
+/* Color del chip por importancia del hábito */
+.evt.imp1 { background: #2f9e44; }
+.evt.imp2 { background: #4493f8; }
+.evt.imp3 { background: #e5534b; }
 
 .errorMsg {
     color: var(--error);
@@ -450,13 +729,6 @@ input:-webkit-autofill:active {
 .emptyState {
     color: var(--muted);
     font-size: 14px;
-}
-
-/* Apila las dos secciones en pantallas estrechas */
-@media (max-width: 768px) {
-    .profileGrid {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* ===== Add habit (formulario) ===== */
@@ -591,6 +863,24 @@ input:-webkit-autofill:active {
     flex: 1;
 }
 
+/* Casilla "Ends next day" del formulario de sesión */
+.checkboxRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.checkboxRow input {
+    width: auto;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
 /* Botón toggle "Add weekly recurrence": outline cuando está inactivo, lleno (accent) al activarse */
 .recurrenceToggle {
     background: transparent;
@@ -661,14 +951,6 @@ input:-webkit-autofill:active {
 .submitBtn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-/* En pantallas estrechas, apilar las horas de inicio y fin */
-@media (max-width: 600px) {
-    .sessionTimes {
-        flex-direction: column;
-        gap: 0;
-    }
 }
 
 /* ===== Habit List (tabla) ===== */
@@ -798,4 +1080,47 @@ footer {
 .footerBot p {
     color: var(--muted);
     font-size: 14px;
+}
+
+/* ===== Responsive (todos los tamaños en un solo sitio) ===== */
+
+/* Tablet: el padding lateral fijo de 128px del header/footer es inviable. */
+@media (max-width: 900px) {
+    .mainHeader .container { padding: 0 24px; }
+    .footerTop { padding: 0 24px; gap: 32px; }
+}
+
+/* Tablet estrecha y móvil. */
+@media (max-width: 768px) {
+    /* Header: el menú baja a una 2ª fila; las subsecciones envuelven. */
+    .navigation { flex-wrap: wrap; row-gap: 12px; }
+    .menu { width: 100%; justify-content: space-between; gap: 16px; }
+    .subsectionNav { flex-wrap: wrap; row-gap: 8px; }
+
+    /* Perfil: las dos tarjetas se apilan. */
+    .profileGrid { grid-template-columns: 1fr; }
+
+    /* Dashboard: las dos mitades se apilan (horario arriba, placeholders debajo). */
+    .dashboardGrid { grid-template-columns: 1fr; }
+
+    /* Calendario: rejilla con scroll horizontal y ancho mínimo por día. */
+    .weekGrid { overflow-x: auto; }
+    .weekHead,
+    .weekBody { grid-template-columns: 60px repeat(7, minmax(90px, 1fr)); }
+}
+
+/* Móvil. */
+@media (max-width: 600px) {
+    .mainHeader .container { padding: 0 16px; }
+    .container { padding: 0 16px; }
+
+    .footerTop { grid-template-columns: 1fr; gap: 24px; }
+
+    .weekBar { flex-wrap: wrap; }
+
+    /* Tabla de hábitos: scroll horizontal en vez de desbordar (truco display:block). */
+    .habitTable { display: block; overflow-x: auto; white-space: nowrap; }
+
+    /* Add session: apilar hora de inicio y fin. */
+    .sessionTimes { flex-direction: column; gap: 0; }
 }

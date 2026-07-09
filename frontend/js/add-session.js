@@ -33,6 +33,8 @@ $(document).ready(function () {
     function addBlock(removable) {
         var fragment = template.content.cloneNode(true);
         var block = fragment.querySelector(".sessionBlock");
+        // Autocompletar el día con la fecha de hoy (el usuario puede cambiarlo).
+        block.querySelector(".sessionDate").value = SessionForm.todayStr();
         SessionForm.setupRecurrenceToggle(block);
         if (removable) {
             var removeBtn = block.querySelector(".removeSessionBtn");

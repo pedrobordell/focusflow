@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from controllers.auth_controller import get_current_user
@@ -41,6 +43,17 @@ def create_sessions(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
+# Lista las sesiones propias dentro de un rango de fechas [from, to] (para el calendario).
+# 'from' es palabra reservada en Python -> se recibe con alias.
+@session_controller.get("", response_model=list[HabitSessionResponse], status_code=status.HTTP_200_OK)
+def list_sessions(
+    date_from: date = Query(..., alias="from"),
+    date_to: date = Query(..., alias="to"),
+    current_user: User = Depends(get_current_user),
+    session_service: SessionService = Depends(get_session_service)
+):
+    return session_service.list_sessions(current_user.id, date_from, date_to)
+
 # Obtiene una sesión propia (para precargar el formulario de edición)
 @session_controller.get("/{session_id}", response_model=HabitSessionResponse, status_code=status.HTTP_200_OK)
 def get_session(
@@ -50,6 +63,18 @@ def get_session(
 ):
     try:
         return session_service.get_session(session_id, current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+# Borra una sesión propia
+@session_controller.delete("/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_session(
+    session_id: int,
+    current_user: User = Depends(get_current_user),
+    session_service: SessionService = Depends(get_session_service)
+):
+    try:
+        session_service.delete_session(session_id, current_user.id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -67,6 +92,7 @@ def update_session(
             user_id=current_user.id,
             habit_id=request.habit_id,
             date=request.date,
+            end_date=request.end_date,
             start_time=request.start_time,
             end_time=request.end_time
         )

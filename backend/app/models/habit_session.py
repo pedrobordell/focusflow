@@ -18,6 +18,8 @@ class HabitSession(Base):
         ForeignKey("habits.id", ondelete="CASCADE"), nullable=False
     )
     date: Mapped[date_type] = mapped_column(Date, nullable=False)
+    # Fecha de fin: normalmente = date; para sesiones que cruzan medianoche, date + 1.
+    end_date: Mapped[date_type] = mapped_column(Date, nullable=False)
     start_time: Mapped[time] = mapped_column(Time, nullable=False)
     end_time: Mapped[time] = mapped_column(Time, nullable=False)
     # Se permiten varias sesiones por hábito y día -> NO hay UNIQUE(habit_id, date).
@@ -25,15 +27,16 @@ class HabitSession(Base):
 
     habit: Mapped["Habit"] = relationship(back_populates="sessions")
 
-    # Duración derivada (NO se almacena): end_time - start_time, expresada en minutos.
+    # Duración derivada (NO se almacena): fin - inicio, en minutos. Usa end_date para
+    # soportar sesiones que cruzan medianoche (p. ej. 22:00 -> 07:00 del día siguiente).
     # Si en el futuro hiciera falta agregar duraciones en SQL, migrar a hybrid_property.
     @property
     def duration(self) -> Optional[int]:
         if self.start_time is None or self.end_time is None:
             return None
-        ref = date_type.min
-        delta = datetime.combine(ref, self.end_time) - datetime.combine(ref, self.start_time)
-        return int(delta.total_seconds() // 60)
+        start = datetime.combine(self.date, self.start_time)
+        end = datetime.combine(self.end_date or self.date, self.end_time)
+        return int((end - start).total_seconds() // 60)
 
     def __repr__(self) -> str:
         return (
