@@ -9,6 +9,38 @@ function extractError(data) {
     return null;
 }
 
+// Petición autenticada a la API con manejo de errores centralizado.
+// - Añade la cabecera Authorization con el token de localStorage.
+// - Ante un 401 (sesión caducada/no válida) limpia el token y vuelve a login.
+// - Ante cualquier otro estado de error lanza un Error con el mensaje del backend.
+// - Devuelve el JSON de la respuesta (o null en 204 No Content y en 401).
+// 'path' es relativo a API_BASE (p. ej. "/habits"); 'options' es el objeto de fetch.
+async function authFetch(path, options) {
+    options = options || {};
+    var token = localStorage.getItem("token");
+    var headers = Object.assign({ "Authorization": `Bearer ${token}` }, options.headers || {});
+    var response = await fetch(`${API_BASE}${path}`, Object.assign({}, options, { headers: headers }));
+
+    if (response.status === 401) {
+        // Sesión no válida: limpiar token y redirigir. Cortamos el flujo devolviendo null.
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+        return null;
+    }
+    if (response.status === 204) return null;   // Sin cuerpo (p. ej. DELETE con éxito)
+
+    var data = null;
+    try {
+        data = await response.json();
+    } catch (e) {
+        data = null;    // Respuesta sin cuerpo JSON válido
+    }
+    if (!response.ok) {
+        throw new Error(extractError(data) || `Request failed (${response.status})`);
+    }
+    return data;
+}
+
 $(document).ready(function() {
 
     // Guardia de sesión: las páginas protegidas requieren token; si no hay, volver a login.

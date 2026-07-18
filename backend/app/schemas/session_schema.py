@@ -3,10 +3,9 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, model_validator
 
-# Si 'repeat_until' es None crea una sesión única, si lleva una fecha,
-# el servicio crea sesiones todas las semanas hasta esa fecha.
-# 'end_date' es la fecha de fin: por defecto = date; para sesiones que cruzan
-# medianoche, date + 1.
+# 'repeat_until' es date, el servicio crea sesiones todas
+# las semanas hasta esa fecha, sino crea una sola sesión.
+# 'end_date' por defecto = date; para sesiones ovenight = date + 1.
 class SessionSpec(BaseModel):
     date: date
     end_date: Optional[date] = None
@@ -14,15 +13,14 @@ class SessionSpec(BaseModel):
     end_time: time
     repeat_until: Optional[date] = None
 
-    # El instante de fin (end_date + end_time) debe ser posterior al de inicio
-    # (date + start_time) y, si hay recurrencia, la fecha límite no puede ser
-    # anterior a la fecha de la sesión.
     @model_validator(mode="after")
     def check_consistency(self):
         if self.end_date is None:
             self.end_date = self.date
+        # Comprueba posterioridad del end_date
         if datetime.combine(self.end_date, self.end_time) <= datetime.combine(self.date, self.start_time):
             raise ValueError("end must be after start")
+        # Comprueba posterioridad del repeat_until
         if self.repeat_until is not None and self.repeat_until < self.date:
             raise ValueError("repeat_until must be on or after the session date")
         return self

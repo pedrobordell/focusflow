@@ -45,6 +45,7 @@ def create_sessions(
 
 # Lista las sesiones propias dentro de un rango de fechas [from, to] (para el calendario).
 # 'from' es palabra reservada en Python -> se recibe con alias.
+# No hay try porque no comprueba la propiedad de las sesiones (se hace en el repositorio).
 @session_controller.get("", response_model=list[HabitSessionResponse], status_code=status.HTTP_200_OK)
 def list_sessions(
     date_from: date = Query(..., alias="from"),

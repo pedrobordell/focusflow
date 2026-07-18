@@ -24,9 +24,8 @@ class SessionRepository:
     def get_by_id(self, session_id: int) -> Optional[HabitSession]:
         return self.session.get(HabitSession, session_id)
 
-    # Devuelve las sesiones del usuario (a través de sus hábitos) dentro de un rango de
-    # fechas [date_from, date_to], ordenadas por fecha y hora de inicio. El join con Habit
-    # acota por dueño (mismo patrón de propiedad que el resto del subsistema).
+    # Devuelve las sesiones del usuario (a través de JOIN con Habits) dentro de un rango de
+    # fechas [date_from, date_to], ordenadas por fecha y hora de inicio.
     def get_by_user_and_range(
         self,
         user_id: int,

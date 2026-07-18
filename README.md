@@ -58,7 +58,7 @@ frontend/          # Páginas HTML, CSS y JS
    ```
 5. Arrancar la API (desde `backend/app`):
    ```bash
-   cd backend/app
+   cd backend/appcd 
    python main.py
    ```
    API: http://127.0.0.1:8000 — Documentación: http://127.0.0.1:8000/docs

@@ -1,19 +1,18 @@
-// Lógica de la pantalla Calendar: vista semanal por horas de las sesiones del usuario.
-// Reutiliza API_BASE de api.js y SessionForm.addDays/handleUnauthorized de session-form.js.
+// Lógica de la pantalla Calendar
 $(document).ready(function () {
 
-    // Solo corre en la pantalla del calendario
+    // Solo se ejecute en calendar.html
     var grid = document.getElementById("weekGrid");
     if (!grid) return;
 
-    // Guardia de sesión: sin token, de vuelta a login
+    // Si no hay token de sesión, redige a login
     var token = localStorage.getItem("token");
     if (!token) {
         window.location.href = "login.html";
         return;
     }
 
-    var HOUR_PX = 72;                       // alto de cada hora en la rejilla (deja ver el contenido del chip)
+    var HOUR_PX = 72;
     var PX_PER_MIN = HOUR_PX / 60;
     var DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -22,11 +21,12 @@ $(document).ready(function () {
     var weekLabel = document.getElementById("weekLabel");
     var emptyMsg = document.getElementById("calendarEmpty");
 
-    var habitMap = {};                      // id -> { name, importance }
-    var weekStart = mondayOf(todayStr());   // lunes (ISO) de la semana visible
+    var habitMap = {};                      // id -> { name, importance }.
+    var weekStart = mondayOf(todayStr());   // Lunes
 
     // --- Utilidades de fecha ("YYYY-MM-DD") ---------------------------------
 
+    // Devuelve la fecha de hoy
     function todayStr() {
         var d = new Date();
         return d.getFullYear() + "-" +
@@ -34,294 +34,314 @@ $(document).ready(function () {
             String(d.getDate()).padStart(2, "0");
     }
 
-    // Lunes de la semana que contiene 'dateStr' (ISO: la semana empieza en lunes).
+    // Lunes de la semana que contiene 'dateStr'
     function mondayOf(dateStr) {
         var d = new Date(dateStr + "T00:00:00");
-        var offset = (d.getDay() + 6) % 7;  // días transcurridos desde el lunes
+        var offset = (d.getDay() + 6) % 7;              // días transcurridos desde el lunes
         return SessionForm.addDays(dateStr, -offset);
     }
 
-    // "HH:MM:SS" o "HH:MM" -> minutos desde medianoche.
+    // Calcula los minutos desde media noche
     function minutesOf(timeStr) {
         var p = timeStr.split(":");
         return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
     }
 
-    // "YYYY-MM-DD" -> "Jul 7"
+    // Formatea Date a -> 'Jan 1'
     function formatDay(dateStr) {
         var d = new Date(dateStr + "T00:00:00");
         return MONTHS[d.getMonth()] + " " + d.getDate();
     }
 
+    // --- Avisos de error (visibles, no solo en consola) ---------------------
+
+    var errorMsg = null;    // Banner de error creado bajo demanda
+
+    // Muestra un aviso de error sobre la rejilla, reutilizando el estilo .emptyState.
+    function showError(message) {
+        if (!errorMsg) {
+            errorMsg = document.createElement("p");
+            errorMsg.className = "emptyState";
+            errorMsg.id = "calendarError";
+            grid.parentNode.insertBefore(errorMsg, grid);
+        }
+        errorMsg.textContent = message;
+        errorMsg.hidden = false;
+    }
+
+    // Oculta el aviso de error (p. ej. tras una carga correcta).
+    function clearError() {
+        if (errorMsg) errorMsg.hidden = true;
+    }
+
     // --- Carga de datos -----------------------------------------------------
 
-    // Primero los hábitos (nombre y color) y, una vez listos, las sesiones de la semana.
-    function loadHabitsThenSessions() {
-        fetch(`${API_BASE}/habits`, { headers: { "Authorization": `Bearer ${token}` } })
-            .then(function (response) {
-                if (response.status === 401) { SessionForm.handleUnauthorized(); return null; }
-                return response.json();
-            })
-            .then(function (habits) {
-                if (!habits) return;
-                habitMap = {};
-                habits.forEach(function (h) {
-                    habitMap[h.id] = { name: h.name, type: h.type, importance: h.importance };
-                });
-                emptyMsg.hidden = habits.length > 0;
-                return loadSessions();
-            })
-            .catch(function (error) {
-                console.error("Error al cargar los hábitos:", error);
+    // Primero los Habit (nombre e importancia) y luego las Sessions
+    async function loadHabitsThenSessions() {
+        try {
+            var habits = await authFetch("/habits");
+            if (!habits) return;    // 401: authFetch ya está redirigiendo a login
+            habitMap = {};
+            habits.forEach(function (h) {
+                habitMap[h.id] = { name: h.name, type: h.type, importance: h.importance };
             });
+            emptyMsg.hidden = habits.length > 0;
+            await loadSessions();
+        } catch (error) {
+            console.error("Error al cargar los hábitos:", error);
+            showError("Could not load your habits. " + error.message);
+        }
     }
 
     // Pide las sesiones de la semana visible y re-renderiza.
-    function loadSessions() {
+    async function loadSessions() {
         var weekEnd = SessionForm.addDays(weekStart, 6);
-        // Pedimos también el día anterior para poder pintar la "cola" de una sesión
-        // que empezó justo antes de la semana y termina dentro de ella.
+        // Pedimos también el día anterior por si hay alguna sesión del Domingo pasado
+        // que termine dentro de la semana actual y poder pintarla.
         var fetchFrom = SessionForm.addDays(weekStart, -1);
-        return fetch(`${API_BASE}/sessions?from=${fetchFrom}&to=${weekEnd}`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        })
-            .then(function (response) {
-                if (response.status === 401) { SessionForm.handleUnauthorized(); return null; }
-                return response.json();
-            })
-            .then(function (sessions) {
-                if (!sessions) return;
-                render(sessions);
-            })
-            .catch(function (error) {
-                console.error("Error al cargar las sesiones:", error);
-            });
+        try {
+            var sessions = await authFetch(`/sessions?from=${fetchFrom}&to=${weekEnd}`);
+            if (!sessions) return;  // 401: authFetch ya está redirigiendo a login
+            clearError();
+            render(sessions);
+        } catch (error) {
+            console.error("Error al cargar las sesiones:", error);
+            showError("Could not load your sessions. " + error.message);
+        }
     }
 
     // --- Render de la rejilla -----------------------------------------------
 
+    // Crea un elemento con clase y texto opcionales (evita repetir createElement).
+    function el(tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text != null) node.textContent = text;
+        return node;
+    }
+
+    // Orquesta el pintado de la semana: cabecera + columna de horas + 7 columnas de día.
     function render(sessions) {
         var today = todayStr();
         var weekEnd = SessionForm.addDays(weekStart, 6);
-        weekLabel.textContent = formatDay(weekStart) + " – " + formatDay(weekEnd) +
+        weekLabel.textContent = formatDay(weekStart) + " - " + formatDay(weekEnd) +
             " " + weekStart.slice(0, 4);
 
-        grid.innerHTML = "";
-
-        // Cabecera: esquina vacía + 7 cabeceras de día
-        var head = document.createElement("div");
-        head.className = "weekHead";
-        var corner = document.createElement("div");
-        corner.className = "weekHeadCorner";
-        head.appendChild(corner);
-
+        // Fechas ("YYYY-MM-DD") de los 7 días de la semana visible
         var days = [];
-        for (var i = 0; i < 7; i++) {
-            var dayDate = SessionForm.addDays(weekStart, i);
-            days.push(dayDate);
+        for (var i = 0; i < 7; i++) days.push(SessionForm.addDays(weekStart, i));
 
-            var dh = document.createElement("div");
-            dh.className = "weekHeadDay" + (dayDate === today ? " isToday" : "");
-            var name = document.createElement("span");
-            name.className = "weekHeadName";
-            name.textContent = DAY_NAMES[i];
-            var num = document.createElement("span");
-            num.className = "weekHeadDate";
-            num.textContent = formatDay(dayDate);
-            dh.appendChild(name);
-            dh.appendChild(num);
-            head.appendChild(dh);
-        }
-        grid.appendChild(head);
+        grid.innerHTML = "";    // Vacía la rejilla anterior
+        grid.appendChild(buildWeekHeader(days, today));
 
-        // Cuerpo: columna de horas + 7 columnas de día
-        var body = document.createElement("div");
-        body.className = "weekBody";
-
-        var hoursCol = document.createElement("div");
-        hoursCol.className = "hoursCol";
-        for (var hr = 0; hr < 24; hr++) {
-            var label = document.createElement("div");
-            label.className = "hourLabel";
-            label.style.height = HOUR_PX + "px";
-            label.textContent = String(hr).padStart(2, "0") + ":00";
-            hoursCol.appendChild(label);
-        }
-        body.appendChild(hoursCol);
-
-        for (var d = 0; d < 7; d++) {
-            var dayStr = days[d];
-            var col = document.createElement("div");
-            col.className = "dayCol" + (dayStr === today ? " isToday" : "");
-            col.style.height = (24 * HOUR_PX) + "px";
-
-            // Celdas de hora de fondo: dibujan las líneas horarias con el MISMO
-            // border que .hourLabel (así el grosor coincide con la columna de horas).
-            for (var hc = 0; hc < 24; hc++) {
-                var cell = document.createElement("div");
-                cell.className = "dayHourCell";
-                cell.style.height = HOUR_PX + "px";
-                col.appendChild(cell);
-            }
-
-            // Recoger los tramos que caen en este día (cabeza el día de inicio; cola el
-            // día en que termina una sesión que cruza medianoche).
-            var segs = [];
-            sessions.forEach(function (s) {
-                if (s.date === dayStr) segs.push({ session: s, segment: "head" });
-                else if (s.end_date === dayStr && s.end_date !== s.date) segs.push({ session: s, segment: "tail" });
-            });
-
-            // Calcular su intervalo [startMin, endMin) y repartir en columnas los solapados.
-            segs.forEach(function (seg) {
-                var b = segmentBounds(seg.session, seg.segment);
-                seg.startMin = b.topMin;
-                seg.endMin = b.topMin + b.heightMin;
-            });
-            layoutColumns(segs);
-
-            // Pintar cada tramo; solo si hay solape se reparte el ancho en columnas.
-            segs.forEach(function (seg) {
-                var el = buildEvent(seg.session, seg.segment);
-                if (seg.cols > 1) {
-                    var w = 100 / seg.cols;
-                    el.style.left = "calc(" + (w * seg.col) + "% + 2px)";
-                    el.style.width = "calc(" + w + "% - 4px)";
-                    el.style.right = "auto";   // anula el right:3px del CSS al fijar left+width
-                }
-                col.appendChild(el);
-            });
-
-            body.appendChild(col);
-        }
+        var body = el("div", "weekBody");
+        body.appendChild(buildHoursColumn());
+        days.forEach(function (dayStr) {
+            body.appendChild(buildDayColumn(dayStr, sessions, today));
+        });
         grid.appendChild(body);
     }
 
-    // Límites verticales de un tramo dentro de su columna de día (en minutos desde
-    // medianoche). 'segment' = "head" (día de inicio) o "tail" (continuación al día
-    // siguiente en sesiones que cruzan medianoche). Lo usan buildEvent y layoutColumns.
+    // Cabecera (1ª fila): esquina vacía + una cabecera por cada día de la semana.
+    function buildWeekHeader(days, today) {
+        var head = el("div", "weekHead");
+        head.appendChild(el("div", "weekHeadCorner"));
+        days.forEach(function (dayDate, i) {
+            var dh = el("div", "weekHeadDay" + (dayDate === today ? " isToday" : ""));
+            dh.appendChild(el("span", "weekHeadName", DAY_NAMES[i]));
+            dh.appendChild(el("span", "weekHeadDate", formatDay(dayDate)));
+            head.appendChild(dh);
+        });
+        return head;
+    }
+
+    // Columna de la izquierda con las 24 etiquetas de hora.
+    function buildHoursColumn() {
+        var hoursCol = el("div", "hoursCol");
+        for (var hr = 0; hr < 24; hr++) {
+            var label = el("div", "hourLabel", String(hr).padStart(2, "0") + ":00");
+            label.style.height = HOUR_PX + "px";
+            hoursCol.appendChild(label);
+        }
+        return hoursCol;
+    }
+
+    // Columna de un día: 24 celdas de fondo + los "chips" de las sesiones,
+    // ya repartidos en columnas para que los solapamientos no se pisen.
+    function buildDayColumn(dayStr, sessions, today) {
+        var col = el("div", "dayCol" + (dayStr === today ? " isToday" : ""));
+        col.style.height = (24 * HOUR_PX) + "px";
+
+        // Celdas de fondo, con la misma altura que la columna de horas
+        for (var hc = 0; hc < 24; hc++) {
+            var cell = el("div", "dayHourCell");
+            cell.style.height = HOUR_PX + "px";
+            col.appendChild(cell);
+        }
+
+        // Clasifica las sesiones en head (comienza ese día) o tail (overnight que
+        // termina ese día, distinto del día en que empezó).
+        var segs = [];
+        sessions.forEach(function (s) {
+            if (s.date === dayStr) segs.push({ session: s, segment: "head" });
+            else if (s.end_date === dayStr && s.end_date !== s.date) segs.push({ session: s, segment: "tail" });
+        });
+
+        // Calcula los límites verticales de cada tramo
+        segs.forEach(function (seg) {
+            var b = segmentBounds(seg.session, seg.segment);
+            seg.startMin = b.topMin;
+            seg.endMin = b.topMin + b.heightMin;
+        });
+
+        // Reparte los solapamientos en columnas
+        layoutColumns(segs);
+
+        // Pinta cada tramo
+        segs.forEach(function (seg) {
+            var chip = buildEvent(seg.session, seg.segment);
+            if (seg.cols > 1) {
+                var w = 100 / seg.cols;
+                chip.style.left = "calc(" + (w * seg.col) + "% + 2px)";
+                chip.style.width = "calc(" + w + "% - 4px)";
+                chip.style.right = "auto";   // anula el right del CSS
+            }
+            col.appendChild(chip);
+        });
+
+        return col;
+    }
+
+    // Límites verticales de una Session (en minutos desde medianoche).
     function segmentBounds(session, segment) {
         var overnight = session.end_date && session.end_date !== session.date;
         var startMin = minutesOf(session.start_time);
         var endMin = minutesOf(session.end_time);
-        if (segment === "tail") {
-            return { topMin: 0, heightMin: endMin };                       // medianoche -> fin
+        if (segment === "tail") {                       // Si es la tail de una overnight
+            return { topMin: 0, heightMin: endMin };
         }
         return { topMin: startMin, heightMin: (overnight ? 1440 : endMin) - startMin };
     }
 
-    // Crea el "chip" de una sesión. 'segment' = "head" (día de inicio) o "tail"
-    // (continuación en el día siguiente para sesiones que cruzan medianoche).
-    // El chip ya NO es un enlace: se edita/borra con los iconos de abajo a la derecha.
+    // Crea el "chip" de una Session
     function buildEvent(session, segment) {
         var overnight = session.end_date && session.end_date !== session.date;
         var habit = habitMap[session.habit_id] || { name: "Habit", type: null, importance: 2 };
-
-        // La cabeza va de inicio a medianoche (si es overnight) o al fin (mismo día);
-        // la cola va de medianoche al fin, en la columna del día siguiente.
         var bounds = segmentBounds(session, segment);
         var timeLabel = (segment === "tail")
             ? "→ " + session.end_time.slice(0, 5)
             : session.start_time.slice(0, 5);
 
-        var el = document.createElement("div");
-        el.className = "evt imp" + habit.importance;
-        el.style.top = (bounds.topMin * PX_PER_MIN) + "px";
-        el.style.height = Math.max(bounds.heightMin * PX_PER_MIN, 18) + "px";
-        el.title = habit.name + (habit.type ? " (" + habit.type + ")" : "") + " · " +
+        // Contenedor del chip; se calculan top y height a partir de los bounds
+        var chip = el("div", "evt imp" + habit.importance);
+        chip.style.top = (bounds.topMin * PX_PER_MIN) + "px";
+        chip.style.height = Math.max(bounds.heightMin * PX_PER_MIN, 18) + "px";
+        chip.title = habit.name + (habit.type ? " (" + habit.type + ")" : "") + " · " +
             session.start_time.slice(0, 5) + "–" + session.end_time.slice(0, 5) +
             (overnight ? " (+1)" : "");
 
-        var time = document.createElement("span");
-        time.className = "evtTime";
-        time.textContent = timeLabel;
-        el.appendChild(time);
+        // Hora, nombre y (si lo tiene) tipo del hábito
+        chip.appendChild(el("span", "evtTime", timeLabel));
+        chip.appendChild(el("span", "evtName", habit.name));
+        if (habit.type) chip.appendChild(el("span", "evtType", habit.type));
 
-        var name = document.createElement("span");
-        name.className = "evtName";
-        name.textContent = habit.name;
-        el.appendChild(name);
+        // Acciones: editar (enlace) y borrar (botón)
+        var actions = el("div", "evtActions");
 
-        // El tipo solo si el hábito lo tiene (es opcional)
-        if (habit.type) {
-            var type = document.createElement("span");
-            type.className = "evtType";
-            type.textContent = habit.type;
-            el.appendChild(type);
-        }
-
-        // Acciones: editar (navega) y borrar (en el sitio), abajo a la derecha
-        var actions = document.createElement("div");
-        actions.className = "evtActions";
-
-        var edit = document.createElement("a");
-        edit.className = "evtBtn";
+        var edit = el("a", "evtBtn", "✏️");
         edit.href = "edit-session.html?id=" + session.id;
         edit.title = "Edit";
-        edit.textContent = "✏️";
         actions.appendChild(edit);
 
-        var del = document.createElement("button");
+        var del = el("button", "evtBtn", "🗑️");
         del.type = "button";
-        del.className = "evtBtn";
         del.title = "Delete";
-        del.textContent = "🗑️";
         del.addEventListener("click", function () { deleteSession(session); });
         actions.appendChild(del);
 
-        el.appendChild(actions);
-        return el;
+        chip.appendChild(actions);
+        return chip;
     }
 
-    // Reparte en columnas los tramos que se solapan en el tiempo dentro de un día,
-    // para pintarlos lado a lado en vez de unos encima de otros. A cada tramo le fija
-    // { col, cols }: su columna y el nº total de columnas de su grupo de solape.
-    // Algoritmo clásico: ordenar por inicio, colocar cada evento en la primera columna
-    // cuyo último evento ya terminó (si no, abrir una nueva); un "grupo" se cierra al
-    // llegar un evento que empieza en o después del fin máximo del grupo.
+    // Controla que las sesiones de un mismo día que ocurran en las mismas horas no se solapen,
+    // creando un grupo de solape con varias columnas dentro del día.
+    // Todos los segmentos tienen:
+    //  - .col: en qué columna se pinta
+    //  - .cols: nº máximo de eventos del grupo de solape
     function layoutColumns(segments) {
-        segments.sort(function (a, b) { return a.startMin - b.startMin || a.endMin - b.endMin; });
-        var columns = [];      // fin del último evento colocado en cada columna del grupo actual
-        var group = [];        // tramos del grupo de solape en curso
-        var groupEnd = -1;     // fin máximo alcanzado por el grupo
+        // Ordena los eventos por min. de inicio, en caso de empate por fin.
+        segments.sort(function (a, b) {
+            return a.startMin - b.startMin || a.endMin - b.endMin;
+        });
 
+        var columns = [];       // columns[c] guarda el endMin del último evento puesto en la columna c
+                                //  sirve para poder reutilizar columnas dentro del mismo grupo de solape
+        var group = [];         // Eventos del grupo de solape que se está construyendo
+        var groupEnd = -1;      // Fin máximo alcanzado por el grupo
+                                //  sirve para comprobar si un grupo de solape ha terminado o no
+
+        // A todos los eventos del grupo les pone el atributo cols = columns.length,
+        // después resetea todo para el siguiente.
         function closeGroup() {
-            for (var i = 0; i < group.length; i++) group[i].cols = columns.length;
-            columns = []; group = []; groupEnd = -1;
+            for (var i = 0; i < group.length; i++) {
+                group[i].cols = columns.length;
+            }
+            columns = [];
+            group = [];
+            groupEnd = -1;
         }
 
         segments.forEach(function (seg) {
-            if (group.length > 0 && seg.startMin >= groupEnd) closeGroup();  // sin solape -> nuevo grupo
+            // El grupo de solape se cierra cuando llega un evento que empieza
+            // después del fin de todos los elementos del grupo
+            // Comprueba que el evento esté dentro del grupo de colapse
+            if (group.length > 0 && seg.startMin >= groupEnd) closeGroup();
+
+            // Recorre las columnas del grupo de colapse buscando si el evento puede insertarse
+            // en alguna columna ya existente (reutilizarla)
             var placed = false;
             for (var c = 0; c < columns.length; c++) {
-                if (seg.startMin >= columns[c]) { columns[c] = seg.endMin; seg.col = c; placed = true; break; }
+                // columns[c] está libre si: groupEnd > startMin >= columns[c],
+                // es decir, el evento está dentro del grupo de colapse (groupEnd > startMin)
+                // y comienza después del último evento insertado en la columna (startMin >= columns[c])
+                if (seg.startMin >= columns[c]) {
+                    // Actualiza columns[c] y guarda seg.col = c
+                    columns[c] = seg.endMin;
+                    seg.col = c;
+                    placed = true;
+                    break;
+                }
             }
-            if (!placed) { seg.col = columns.length; columns.push(seg.endMin); }
+
+            // Si ninguna estaba libre, abre una nueva columna nueva
+            if (!placed) {
+                seg.col = columns.length;
+                columns.push(seg.endMin);
+            }
+
+            // Actualiza group y groupEnd
             group.push(seg);
             groupEnd = Math.max(groupEnd, seg.endMin);
         });
-        closeGroup();
+        closeGroup();       // Cierra el último grupo de solape
     }
 
-    // Borra una sesión tras confirmación y refresca la semana visible.
-    // Calcado del borrado de habit-list.js.
-    function deleteSession(session) {
+    // Borra la Session tras confirmación y refresca la semana
+    async function deleteSession(session) {
         var habit = habitMap[session.habit_id] || { name: "this habit" };
+        // Confirmación
         if (!window.confirm(`Delete this session of "${habit.name}"?`)) return;
 
-        fetch(`${API_BASE}/sessions/${session.id}`, {
-            method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` }
-        })
-            .then(function (response) {
-                if (response.status === 401) { SessionForm.handleUnauthorized(); return; }
-                if (response.status === 204) { loadSessions(); return; }
-                alert("Could not delete the session");
-            })
-            .catch(function (error) {
-                console.error("Error al borrar la sesión:", error);
-                alert("Error connecting to server");
-            });
+        try {
+            await authFetch(`/sessions/${session.id}`, { method: "DELETE" });
+            // authFetch devuelve null tanto en 204 (éxito) como en 401 (redirigiendo).
+            // Si fue un 401 ya no hay token: no refrescamos porque la página va a login.
+            if (!localStorage.getItem("token")) return;
+            loadSessions();
+        } catch (error) {
+            console.error("Error al borrar la sesión:", error);
+            alert(error.message || "Could not delete the session");
+        }
     }
 
     // --- Navegación de semana -----------------------------------------------

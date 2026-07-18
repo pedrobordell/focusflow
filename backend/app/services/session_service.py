@@ -54,7 +54,7 @@ class SessionService:
 
         return self.session_repo.create_many(rows)
 
-    # Lista las sesiones del usuario dentro de un rango de fechas (para el calendario).
+    # Lista las sesiones del usuario dentro de un rango de fechas.
     # La propiedad la garantiza el filtro por Habit.user_id del repositorio.
     def list_sessions(
         self,
@@ -75,7 +75,7 @@ class SessionService:
             raise ValueError("Session not found")
         return session
 
-    # Borra una Session propia. get_session ya comprueba la propiedad (ValueError -> 404)
+    # Borra una Session propia. get_session comprueba la propiedad
     def delete_session(self, session_id: int, user_id: int) -> None:
         session = self.get_session(session_id, user_id)
         self.session_repo.delete_session(session)
