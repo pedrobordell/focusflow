@@ -12,6 +12,7 @@ from services.session_service import SessionService
 from schemas.session_schema import (
     SessionBatchCreateRequest,
     SessionUpdateRequest,
+    SessionCompletionUpdate,
     HabitSessionResponse,
 )
 
@@ -76,6 +77,20 @@ def delete_session(
 ):
     try:
         session_service.delete_session(session_id, current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+# Marca/desmarca una sesión propia como cumplida (tracking de cumplimiento).
+# PATCH parcial: solo toca 'completed', sin la semántica de reemplazo del PUT.
+@session_controller.patch("/{session_id}", response_model=HabitSessionResponse, status_code=status.HTTP_200_OK)
+def set_session_completed(
+    session_id: int,
+    request: SessionCompletionUpdate,
+    current_user: User = Depends(get_current_user),
+    session_service: SessionService = Depends(get_session_service)
+):
+    try:
+        return session_service.set_completed(session_id, current_user.id, request.completed)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

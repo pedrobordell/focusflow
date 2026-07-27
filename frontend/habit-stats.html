@@ -9,7 +9,7 @@
             document.documentElement.classList.add("light");
         }
     </script>
-    <title>FocusFlow - Eslogan todo</title>
+    <title>FocusFlow - Habit Stats</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" sizes="48x48" type="image/png" href="img/favicons.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -18,10 +18,10 @@
     <script src="js/authentication.js"></script>
     <script src="js/api.js"></script>
     <script src="js/nav.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="js/habit-stats.js"></script>
 </head>
 <body>
-    <header class="mainHeader"> 
+    <header class="mainHeader">
         <div class="container">
             <div class="navigation">
                 <div class="navLeft">
@@ -51,29 +51,50 @@
 
     <section>
         <div class="container">
-            <div class="dashboardContainer" id="dashboardContainer" name="dashboardContainer">
+            <div class="requiresAuth" id="habitStatsContainer">
                 <div class="dashboardHeader">
-                    <h2>Welcome to your Dashboard</h2>
+                    <h2>Habit Stats</h2>
                 </div>
-                <div class="dashboardGrid">
-                    <div class="todaySchedule">
-                        <div class="todayHeader">
-                            <h3>Today's schedule</h3>
-                            <a class="todayCreateLink" href="add-session.html">Create a new session</a>
+
+                <!-- Sin hábitos: aviso para crear el primero -->
+                <p class="emptyState" id="habitStatsEmpty" hidden>Create a habit first to see its stats.</p>
+
+                <div class="statsControls" id="habitStatsControls" hidden>
+                    <label for="habitSelect">Habit</label>
+                    <select id="habitSelect"></select>
+                    <label for="habitPeriod">Period</label>
+                    <select id="habitPeriod">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="all">All time</option>
+                    </select>
+                </div>
+
+                <p class="emptyState" id="habitStatsError" hidden></p>
+
+                <div class="statsSplit" id="habitStatsBody" hidden>
+                    <!-- Izquierda: % de cumplimiento por hora del día (PNG del servidor) -->
+                    <figure class="chartCard">
+                        <img id="chartHourly" alt="Compliance by hour of day">
+                    </figure>
+
+                    <!-- Derecha: detalle del hábito -->
+                    <div class="statsPanel">
+                        <div class="highlightCard">
+                            <h4>Habit info</h4>
+                            <p class="highlightValue" id="habitInfoName">—</p>
+                            <p class="highlightMeta" id="habitInfoMeta"></p>
                         </div>
-                        <p class="emptyState" id="todayEmpty" hidden>Nothing scheduled for today.</p>
-                        <ul class="todayList" id="todayList"></ul>
-                    </div>
-                    <div class="dashboardStats">
-                        <div class="statPlaceholder statCard" id="complianceStat">
-                            <div>
-                                <h3>Percentage of compliance</h3>
-                                <p class="statBig" id="complianceValue">—</p>
-                                <p class="statSub">Last 30 days</p>
-                            </div>
+                        <div class="highlightCard">
+                            <h4>Last 10 sessions</h4>
+                            <p class="highlightValue" id="last10Value">—</p>
+                            <p class="highlightMeta" id="last10Meta"></p>
                         </div>
-                        <div class="statPlaceholder">
-                            <h3>Recommendation of the day</h3>
+                        <div class="highlightCard">
+                            <h4>Best time slot</h4>
+                            <p class="highlightValue" id="bestSlotValue">—</p>
+                            <p class="highlightMeta" id="bestSlotMeta"></p>
                         </div>
                     </div>
                 </div>
@@ -81,7 +102,7 @@
         </div>
     </section>
 
-    <footer>        
+    <footer>
         <div class="footerTop">
             <div class="footerColumn">
                 <div class="footerLogo">
@@ -100,8 +121,8 @@
             <div class="footerColumn">
                 <h4>Quick links</h4>
                 <ul>
-                    <li><a href="#">Todo</a></li>
-                    <li><a href="#">Todo</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="profile.html">Profile</a></li>
                     <li><a href="#">Todo</a></li>
                 </ul>
             </div>

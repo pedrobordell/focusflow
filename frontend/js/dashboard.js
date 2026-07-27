@@ -21,12 +21,51 @@ $(document).ready(function () {
         window.location.href = "login.html";
     }
 
-    // Fecha de hoy en formato "YYYY-MM-DD"
-    function todayStr() {
-        var d = new Date();
+    // Formatea un Date a "YYYY-MM-DD"
+    function fmt(d) {
         return d.getFullYear() + "-" +
             String(d.getMonth() + 1).padStart(2, "0") + "-" +
             String(d.getDate()).padStart(2, "0");
+    }
+
+    // Fecha de hoy en formato "YYYY-MM-DD"
+    function todayStr() {
+        return fmt(new Date());
+    }
+
+    // Rellena el widget "Percentage of compliance" con el % de los últimos 30 días.
+    function loadCompliance() {
+        var valueEl = document.getElementById("complianceValue");
+        if (!valueEl) return;
+        var from = new Date();
+        from.setDate(from.getDate() - 29);      // 30 días incluyendo hoy
+        authFetch(`/statistics/summary?from=${fmt(from)}&to=${todayStr()}`)
+            .then(function (summary) {
+                if (!summary) return;           // 401: authFetch ya redirige a login
+                valueEl.textContent = Math.round(summary.compliance_rate * 100) + "%";
+            })
+            .catch(function (error) {
+                console.error("Error al cargar el cumplimiento:", error);
+            });
+    }
+    loadCompliance();
+
+    // Marca/desmarca una sesión como cumplida (PATCH) y refresca el horario de hoy.
+    function toggleCompleted(session, checkbox) {
+        authFetch(`/sessions/${session.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ completed: checkbox.checked })
+        })
+            .then(function () {
+                if (!localStorage.getItem("token")) return;   // 401: redirigiendo a login
+                loadToday();
+                loadCompliance();
+            })
+            .catch(function (error) {
+                console.error("Error al actualizar la sesión:", error);
+                checkbox.checked = !checkbox.checked;   // revierte el toggle ante error
+            });
     }
 
     // Primero los hábitos (para nombre y color) y luego las sesiones de hoy.
@@ -75,8 +114,16 @@ $(document).ready(function () {
             var li = document.createElement("li");
             li.className = "todayItem";
 
+            // Checkbox de cumplimiento (tracking): marca/desmarca la sesión.
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "todayCheck";
+            checkbox.checked = s.completed;
+            checkbox.title = "Mark as done";
+            checkbox.addEventListener("change", function () { toggleCompleted(s, checkbox); });
+
             var link = document.createElement("a");
-            link.className = "todayLink imp" + habit.importance;
+            link.className = "todayLink imp" + habit.importance + (s.completed ? " completed" : "");
             link.href = "edit-session.html?id=" + s.id;
 
             var time = document.createElement("span");
@@ -89,6 +136,7 @@ $(document).ready(function () {
 
             link.appendChild(time);
             link.appendChild(name);
+            li.appendChild(checkbox);
             li.appendChild(link);
             list.appendChild(li);
         });

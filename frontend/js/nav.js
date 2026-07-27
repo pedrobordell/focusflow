@@ -19,7 +19,6 @@ const NAV_SECTIONS = [
         screens: [
             { label: "Add habit", href: "add-habit.html" },
             { label: "Habit List", href: "habit-list.html" },
-            { label: "Statistics", href: "statistics.html" },
             { label: "Add session", href: "add-session.html" },
             // Pantallas de detalle: pertenecen a la sección para la navegación pero no se
             // muestran como subsecciones en el header.
@@ -27,7 +26,15 @@ const NAV_SECTIONS = [
             { label: "Edit session", href: "edit-session.html", hidden: true },
         ],
     },
-    // Futuras: stats, ai, messages
+    {
+        id: "stats",
+        label: "Statistics",
+        screens: [
+            { label: "Habit Stats", href: "habit-stats.html" },
+            { label: "Weekly Stats", href: "weekly-stats.html" },
+        ],
+    },
+    // Futuras: ai, messages
 ];
 
 $(document).ready(function () {

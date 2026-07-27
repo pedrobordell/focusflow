@@ -49,6 +49,13 @@ class SessionRepository:
         self.session.delete(habit_session)
         self.session.commit()
 
+    # Marca/desmarca una Session como cumplida (tracking) y confirma los cambios
+    def update_completed(self, habit_session: HabitSession, completed: bool) -> HabitSession:
+        habit_session.completed = completed
+        self.session.commit()
+        self.session.refresh(habit_session)
+        return habit_session
+
     # Edita una Session y confirma los cambios
     def update_session(
         self,

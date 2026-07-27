@@ -9,6 +9,12 @@ function extractError(data) {
     return null;
 }
 
+// Sesión no válida o ausente: limpia el token guardado y vuelve a la pantalla de login.
+function clearSessionAndRedirect() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+}
+
 // Petición autenticada a la API con manejo de errores centralizado.
 // - Añade la cabecera Authorization con el token de localStorage.
 // - Ante un 401 (sesión caducada/no válida) limpia el token y vuelve a login.
@@ -22,9 +28,7 @@ async function authFetch(path, options) {
     var response = await fetch(`${API_BASE}${path}`, Object.assign({}, options, { headers: headers }));
 
     if (response.status === 401) {
-        // Sesión no válida: limpiar token y redirigir. Cortamos el flujo devolviendo null.
-        localStorage.removeItem("token");
-        window.location.href = "login.html";
+        clearSessionAndRedirect();   // sesión no válida; cortamos el flujo devolviendo null
         return null;
     }
     if (response.status === 204) return null;   // Sin cuerpo (p. ej. DELETE con éxito)
@@ -41,13 +45,38 @@ async function authFetch(path, options) {
     return data;
 }
 
+// Descarga autenticada de un binario (una gráfica PNG) y lo devuelve como URL local
+// usable en el 'src' de un <img>, sin bloquear los hilos.
+async function authFetchBlob(path) {
+    var token = localStorage.getItem("token");
+
+    // Hace la petición a la URL con el token de Autenticación
+    var response = await fetch(`${API_BASE}${path}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    // Token no válido: limpia y redirige a login
+    if (response.status === 401) {
+        clearSessionAndRedirect();
+        return null;
+    }
+    // Otro error: lanza excepción
+    if (!response.ok) {
+        throw new Error(`Request failed (${response.status})`);
+    }
+
+    // Lee los bytes de la imagen y crea una URL local para el <img>
+    var blob = await response.blob();
+    return URL.createObjectURL(blob);
+}
+
 $(document).ready(function() {
 
     // Guardia de sesión: las páginas protegidas requieren token; si no hay, volver a login.
     // Cubre el dashboard y cualquier contenedor marcado con la clase .requiresAuth.
     var requiresAuth = document.getElementById("dashboardContainer") || document.querySelector(".requiresAuth");
     if (requiresAuth && !localStorage.getItem("token")) {
-        window.location.href = "login.html";
+        clearSessionAndRedirect();
         return;
     }
 

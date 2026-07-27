@@ -1009,6 +1009,151 @@ input:-webkit-autofill:active {
     transform: scale(1.15);
 }
 
+/* ===== Tracking de cumplimiento (marcar sesión como cumplida) ===== */
+
+/* Sesión cumplida en el calendario: chip atenuado y nombre tachado. */
+.evt.completed { opacity: 0.5; }
+.evt.completed .evtName { text-decoration: line-through; }
+
+/* Horario de hoy: checkbox de cumplimiento a la izquierda del enlace. */
+.todayItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.todayItem .todayLink {
+    flex: 1;
+}
+
+.todayCheck {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.todayLink.completed .todayName {
+    text-decoration: line-through;
+    color: var(--muted);
+}
+
+/* ===== Estadísticas ===== */
+
+.statsControls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.statsControls select {
+    min-width: 160px;
+    padding: 10px 12px;
+    border: 2px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    background-color: var(--input-bg);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.statsControls select:focus {
+    border: 2px solid var(--accent);
+    outline: none;
+}
+
+.statCard {
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Panel dividido de las pantallas de estadísticas: gráfica (izq) + datos (der). */
+.statsSplit {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Columna derecha: tarjetas apiladas verticalmente. */
+.statsPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Tarjeta de destacado (alineada a la izquierda, a diferencia de .statCard centrada). */
+.highlightCard {
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.highlightCard h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.highlightValue {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.highlightMeta {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Signo de la mejora semanal respecto a la anterior. */
+.deltaUp { color: #2e9e5b; }
+.deltaDown { color: #d9534f; }
+
+/* Cada gráfica es un PNG (fondo blanco generado por Matplotlib) enmarcado. */
+.chartCard {
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #ffffff;
+}
+
+.chartCard img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+/* Widget de cumplimiento del dashboard: caja sólida (no el placeholder discontinuo). */
+#complianceStat {
+    border-style: solid;
+    color: var(--text);
+}
+
+.statBig {
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin: 8px 0 4px;
+}
+
+.statSub {
+    font-size: 13px;
+    color: var(--muted);
+}
+
 footer {
     background-color: var(--footer-bg);
     color: var(--footer-text);
@@ -1102,6 +1247,9 @@ footer {
 
     /* Dashboard: las dos mitades se apilan (horario arriba, placeholders debajo). */
     .dashboardGrid { grid-template-columns: 1fr; }
+
+    /* Estadísticas: el panel dividido se apila (gráfica arriba, datos debajo). */
+    .statsSplit { grid-template-columns: 1fr; }
 
     /* Calendario: rejilla con scroll horizontal y ancho mínimo por día. */
     .weekGrid { overflow-x: auto; }

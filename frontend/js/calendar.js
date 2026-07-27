@@ -233,7 +233,7 @@ $(document).ready(function () {
             : session.start_time.slice(0, 5);
 
         // Contenedor del chip; se calculan top y height a partir de los bounds
-        var chip = el("div", "evt imp" + habit.importance);
+        var chip = el("div", "evt imp" + habit.importance + (session.completed ? " completed" : ""));
         chip.style.top = (bounds.topMin * PX_PER_MIN) + "px";
         chip.style.height = Math.max(bounds.heightMin * PX_PER_MIN, 18) + "px";
         chip.title = habit.name + (habit.type ? " (" + habit.type + ")" : "") + " · " +
@@ -245,8 +245,17 @@ $(document).ready(function () {
         chip.appendChild(el("span", "evtName", habit.name));
         if (habit.type) chip.appendChild(el("span", "evtType", habit.type));
 
-        // Acciones: editar (enlace) y borrar (botón)
+        // Acciones: marcar cumplida (toggle), editar (enlace) y borrar (botón)
         var actions = el("div", "evtActions");
+
+        // Solo se ofrece el toggle en la cabeza de la sesión (no en la cola overnight).
+        if (segment !== "tail") {
+            var toggle = el("button", "evtBtn", session.completed ? "✅" : "⬜");
+            toggle.type = "button";
+            toggle.title = session.completed ? "Mark as not done" : "Mark as done";
+            toggle.addEventListener("click", function () { toggleCompleted(session); });
+            actions.appendChild(toggle);
+        }
 
         var edit = el("a", "evtBtn", "✏️");
         edit.href = "edit-session.html?id=" + session.id;
@@ -324,6 +333,23 @@ $(document).ready(function () {
             groupEnd = Math.max(groupEnd, seg.endMin);
         });
         closeGroup();       // Cierra el último grupo de solape
+    }
+
+    // Marca/desmarca una Session como cumplida (PATCH) y refresca la semana.
+    async function toggleCompleted(session) {
+        try {
+            await authFetch(`/sessions/${session.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ completed: !session.completed })
+            });
+            // authFetch devuelve null en 401 (redirigiendo); si ya no hay token, no refrescamos.
+            if (!localStorage.getItem("token")) return;
+            loadSessions();
+        } catch (error) {
+            console.error("Error al actualizar la sesión:", error);
+            alert(error.message || "Could not update the session");
+        }
     }
 
     // Borra la Session tras confirmación y refresca la semana

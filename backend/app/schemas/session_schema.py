@@ -46,6 +46,10 @@ class SessionUpdateRequest(BaseModel):
             raise ValueError("end must be after start")
         return self
 
+# Actualización parcial: marcar/desmarcar una sesión como cumplida (tracking).
+class SessionCompletionUpdate(BaseModel):
+    completed: bool
+
 # Response de la API para las Sessions
 class HabitSessionResponse(BaseModel):
     id: int

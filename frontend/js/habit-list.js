@@ -32,11 +32,11 @@ $(document).ready(function () {
         // Completed: placeholder hasta tener el subsistema de sesiones
         $("<td>").append($("<span>").addClass("emptyState").text("—")).appendTo(tr);
 
-        // Stats: enlaza a la gráfica (pasa el id para el futuro)
+        // Stats: enlaza al detalle del hábito (Habit Stats), preseleccionándolo por id
         $("<td>").addClass("iconCol").append(
             $("<a>")
                 .addClass("iconLink")
-                .attr("href", "statistics.html?habitId=" + habit.id)
+                .attr("href", "habit-stats.html?habitId=" + habit.id)
                 .attr("title", "View stats")
                 .text("📊")
         ).appendTo(tr);

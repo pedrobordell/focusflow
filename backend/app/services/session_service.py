@@ -75,6 +75,12 @@ class SessionService:
             raise ValueError("Session not found")
         return session
 
+    # Marca/desmarca una Session propia como cumplida (tracking).
+    # get_session comprueba la propiedad (ValueError -> 404 en el controller).
+    def set_completed(self, session_id: int, user_id: int, completed: bool) -> HabitSession:
+        session = self.get_session(session_id, user_id)
+        return self.session_repo.update_completed(session, completed)
+
     # Borra una Session propia. get_session comprueba la propiedad
     def delete_session(self, session_id: int, user_id: int) -> None:
         session = self.get_session(session_id, user_id)
