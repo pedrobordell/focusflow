@@ -11,6 +11,7 @@ from schemas.statistics_schema import (
     HabitHighlight,
     WeeklyHighlights,
     HabitDetail,
+    SlotStat,
 )
 
 # Franjas horarias cada 6 horas
@@ -18,6 +19,11 @@ SLOT_LABELS = ["Early morning", "Morning", "Afternoon", "Evening"]
 
 # Nº de sesiones recientes que resume "Last 10 sessions" en Habit Stats.
 LAST_N = 10
+
+# Mínimo de sesiones programadas en una franja para considerarla representativa.
+# Por debajo de esto no se propone la franja: con 1 sola sesión el porcentaje
+# observado sería 0% o 100% y no significaría nada.
+MIN_SLOT_SESSIONS = 3
 
 # Columnas del DataFrame de trabajo (fijas para que un periodo vacío tenga esquema válido).
 _DF_COLUMNS = ["habit_id", "habit_name", "date", "hour", "slot", "duration", "completed"]
@@ -57,7 +63,9 @@ class StatisticsService:
             })
         return pd.DataFrame.from_records(records, columns=_DF_COLUMNS)
 
-    def _all_sessions_df(self, user_id: int, date_from: date, date_to: date) -> pd.DataFrame:
+    # Público: es la entrada de la capa de datos. Además de las pantallas de estadísticas,
+    # lo reutiliza el motor de Recomendaciones para construir su contexto.
+    def sessions_df(self, user_id: int, date_from: date, date_to: date) -> pd.DataFrame:
         return self._rows_to_df(self.stats_repo.get_sessions_for_stats(user_id, date_from, date_to))
 
     def _habit_df(self, user_id: int, habit_id: int, date_from: date, date_to: date) -> pd.DataFrame:
@@ -67,7 +75,7 @@ class StatisticsService:
 
     # Deveuelve las Sessiones totales, las cumplidas y el ratio de cumplimiento de un DataFrame
     @staticmethod
-    def _rate(df: pd.DataFrame) -> tuple:
+    def rate(df: pd.DataFrame) -> tuple:
         scheduled = int(len(df))
         completed = int(df["completed"].sum()) if scheduled else 0
         rate = (completed / scheduled) if scheduled else 0.0
@@ -83,7 +91,7 @@ class StatisticsService:
     # --- Dashboard ----------------------------------------------------------
 
     def compliance_summary(self, user_id: int, date_from: date, date_to: date) -> ComplianceSummary:
-        scheduled, completed, rate = self._rate(self._all_sessions_df(user_id, date_from, date_to))
+        scheduled, completed, rate = self.rate(self.sessions_df(user_id, date_from, date_to))
         return ComplianceSummary(
             scheduled=scheduled,
             completed=completed,
@@ -94,13 +102,13 @@ class StatisticsService:
 
     # Serie por día (Weekly Stats): % de cumplimiento de cada día con sesiones, ordenado.
     def daily_compliance(self, user_id: int, date_from: date, date_to: date) -> list:
-        df = self._all_sessions_df(user_id, date_from, date_to)
+        df = self.sessions_df(user_id, date_from, date_to)
         if df.empty:
             return []
         points = []
         # .groupby divide el DF en subcampos con el mismo valor de "date" y devuelve day y el group (subcampo)
         for day, group in df.groupby("date", sort=True):
-            _, _, rate = self._rate(group)
+            _, _, rate = self.rate(group)
             points.append(DayPoint(date=day, compliance_rate=round(rate, 4)))
         return points
 
@@ -113,7 +121,7 @@ class StatisticsService:
         points = []
         # .groupby divide el DF en subcampos con el mismo valor de "hour" y devuelve hour y el group (subcampo)
         for hour, group in df.groupby("hour", sort=True):
-            _, _, rate = self._rate(group)
+            _, _, rate = self.rate(group)
             points.append(HourPoint(hour=int(hour), compliance_rate=round(rate, 4)))
         return points
 
@@ -127,11 +135,11 @@ class StatisticsService:
         prev_monday = monday - timedelta(days=7)
         prev_sunday = sunday - timedelta(days=7)
 
-        df_now = self._all_sessions_df(user_id, monday, sunday)
-        df_prev = self._all_sessions_df(user_id, prev_monday, prev_sunday)
+        df_now = self.sessions_df(user_id, monday, sunday)
+        df_prev = self.sessions_df(user_id, prev_monday, prev_sunday)
 
-        _, _, comp_now = self._rate(df_now)
-        _, _, comp_prev = self._rate(df_prev)
+        _, _, comp_now = self.rate(df_now)
+        _, _, comp_prev = self.rate(df_prev)
 
         habits = self._week_habits(df_now)
         # Hábitos que tengan horas completadas
@@ -161,7 +169,7 @@ class StatisticsService:
             return []
         result = []
         for habit_id, group in df.groupby("habit_id", sort=False):
-            _, _, rate = self._rate(group)
+            _, _, rate = self.rate(group)
             done = group[group["completed"]]    # Obtiene solo las filas completadas
             hours = float(done["duration"].sum()) / 60 if not done.empty else 0.0
             result.append(HabitHighlight(
@@ -189,7 +197,9 @@ class StatisticsService:
             last10_rate = None                                  # evita dividir por 0
 
         # Mejor franja horaria del hábito en el periodo.
-        best_slot = self._best_slot(self._habit_df(user_id, habit_id, date_from, date_to))
+        slots = self.slot_stats(self._habit_df(user_id, habit_id, date_from, date_to))
+        best = self.best_slot(slots)
+        best_slot = best.label if best else None
 
         return HabitDetail(
             habit_id=habit.id,
@@ -201,19 +211,40 @@ class StatisticsService:
             best_slot=best_slot,
         )
 
-    # Devuelve la franja horaria con mayor tasa de cumplimiento (desempate: más sesiones programadas).
-    def _best_slot(self, df: pd.DataFrame):
+    # --- Franjas horarias (compartido con Recomendaciones) ------------------
+
+    # Métricas de las 4 franjas horarias de un DataFrame ya filtrado (normalmente de un hábito).
+    # Devuelve una entrada por franja CON sesiones; las franjas vacías se omiten.
+    #
+    # 'probability' aplica el suavizado de Laplace ("regla de sucesión"): en vez de
+    # cumplidas / programadas se usa (cumplidas + 1) / (programadas + 2). Así una franja con
+    # 1 sesión cumplida no vale 100% sino 67%, y el valor se acerca al porcentaje observado
+    # solo a medida que se acumulan sesiones. Es lo que permite comparar franjas con distinto
+    # número de muestras sin que una casualidad gane siempre.
+    def slot_stats(self, df: pd.DataFrame) -> list[SlotStat]:
         if df.empty:
-            return None
-        best_label = None
-        best_key = None
+            return []
+        stats = []
         for index, label in enumerate(SLOT_LABELS):
             group = df[df["slot"] == index]     # Filtra solo las filas que sean de la franja
             if group.empty:
                 continue
-            scheduled, _, rate = self._rate(group)
-            key = (rate, scheduled)
-            if best_key is None or key > best_key:
-                best_key = key
-                best_label = label
-        return best_label
+            scheduled, completed, rate = self.rate(group)
+            stats.append(SlotStat(
+                slot=index,
+                label=label,
+                scheduled=scheduled,
+                completed=completed,
+                compliance_rate=round(rate, 4),
+                probability=round((completed + 1) / (scheduled + 2), 4),
+            ))
+        return stats
+
+    # Franja recomendable: la de mayor probabilidad entre las que tienen suficientes sesiones
+    # (desempate: más sesiones programadas). None si ninguna franja llega al mínimo.
+    @staticmethod
+    def best_slot(slots: list[SlotStat]):
+        usable = [slot for slot in slots if slot.scheduled >= MIN_SLOT_SESSIONS]
+        if not usable:
+            return None
+        return max(usable, key=lambda slot: (slot.probability, slot.scheduled))

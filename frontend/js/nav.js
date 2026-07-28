@@ -10,6 +10,7 @@ const NAV_SECTIONS = [
         screens: [
             { label: "Dashboard", href: "dashboard.html" },
             { label: "Calendar", href: "calendar.html" },
+            { label: "Messages", href: "messages.html" },
             { label: "Profile", href: "profile.html" },
         ],
     },
@@ -34,7 +35,7 @@ const NAV_SECTIONS = [
             { label: "Weekly Stats", href: "weekly-stats.html" },
         ],
     },
-    // Futuras: ai, messages
+    // Futuras: ai
 ];
 
 $(document).ready(function () {

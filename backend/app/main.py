@@ -8,6 +8,8 @@ from controllers.auth_controller import auth_controller
 from controllers.habit_controller import habit_controller
 from controllers.session_controller import session_controller
 from controllers.statistics_controller import statistics_controller
+from controllers.recommendation_controller import recommendation_controller
+from controllers.message_controller import message_controller
 
 # Crea las tablas que falten
 Base.metadata.create_all(bind=engine)
@@ -26,6 +28,8 @@ app.include_router(auth_controller)
 app.include_router(habit_controller)
 app.include_router(session_controller)
 app.include_router(statistics_controller)
+app.include_router(recommendation_controller)
+app.include_router(message_controller)
 
 # Endpoint de prueba
 @app.get("/")

@@ -80,8 +80,10 @@ $(document).ready(function () {
 
         var best = document.getElementById("bestSlotValue");
         best.textContent = detail.best_slot || "—";
+        // Sin best_slot puede ser que no haya sesiones o que ninguna franja tenga suficientes
+        // (el backend exige un mínimo para no proponer un horario a partir de una casualidad).
         document.getElementById("bestSlotMeta").textContent =
-            detail.best_slot ? "Highest compliance in this period" : "No sessions in this period";
+            detail.best_slot ? "Highest compliance in this period" : "Not enough sessions in this period";
     }
 
     // --- Gráfica (izquierda) ------------------------------------------------

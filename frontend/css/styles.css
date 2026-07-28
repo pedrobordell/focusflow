@@ -1154,6 +1154,166 @@ input:-webkit-autofill:active {
     color: var(--muted);
 }
 
+/* ===== Recomendaciones y Mensajes ===== */
+
+/* Widget "Recommendation of the day" del dashboard: caja sólida como la de cumplimiento,
+   pero con el contenido alineado a la izquierda porque es texto y no una cifra. */
+.recCard {
+    border-style: solid;
+    color: var(--text);
+    text-align: left;
+    align-items: stretch;
+}
+
+.recBody {
+    width: 100%;
+}
+
+.recHeader {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.recTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 6px;
+}
+
+.recContent {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+/* Cabecera de la bandeja: título + contador de no leídos. */
+.messagesHeader {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 32px 0 8px;
+}
+
+.messagesHeader h2 {
+    font-size: 32px;
+    font-weight: 600;
+}
+
+.unreadCount {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 2px 10px;
+}
+
+.messagesIntro {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+}
+
+.messageList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 64px;
+}
+
+.messageItem {
+    border: 1px solid var(--divider);
+    border-left: 4px solid transparent;   /* el color solo aparece en los no leídos */
+    border-radius: 8px;
+    padding: 16px 20px;
+}
+
+/* Diferenciador de los mensajes sin leer: barra lateral de color y título más marcado. */
+.messageItem.unread {
+    border-left-color: var(--accent);
+}
+
+.messageItem.unread .messageTitle {
+    font-weight: 700;
+    color: var(--text);
+}
+
+.messageHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.messageTitle {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+/* Etiqueta del tipo de mensaje: propuesta (recommendation) vs aviso (notification). */
+.messageTag {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: var(--btn-text);
+    background-color: var(--btn-bg);
+}
+
+.messageTag.tag-recommendation {
+    color: #ffffff;
+    background-color: var(--accent);
+}
+
+.messageContent {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.messageFoot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.messageMeta {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.messageActions {
+    display: flex;
+    gap: 8px;
+}
+
+.messageBtn {
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background-color: transparent;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.messageBtn:hover {
+    background-color: var(--btn-bg);
+}
+
 footer {
     background-color: var(--footer-bg);
     color: var(--footer-text);
@@ -1271,4 +1431,8 @@ footer {
 
     /* Add session: apilar hora de inicio y fin. */
     .sessionTimes { flex-direction: column; gap: 0; }
+
+    /* Mensajes: título y etiqueta, y fecha y acciones, se apilan para no desbordar. */
+    .messageHead,
+    .messageFoot { flex-direction: column; align-items: flex-start; gap: 8px; }
 }

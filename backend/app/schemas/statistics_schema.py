@@ -27,6 +27,18 @@ class HourPoint(BaseModel):
     compliance_rate: float
 
 
+# Métrica de una franja horaria (0-6 / 6-12 / 12-18 / 18-24) de un hábito.
+# La consumen tanto Estadísticas ("Best time slot") como el motor de Recomendaciones
+# (propuesta de horario de RF14): un único criterio para toda la aplicación.
+class SlotStat(BaseModel):
+    slot: int                       # índice de la franja, 0..3
+    label: str                      # etiqueta legible ("Morning", ...)
+    scheduled: int                  # sesiones programadas en esa franja
+    completed: int                  # sesiones cumplidas en esa franja
+    compliance_rate: float          # completed / scheduled, en [0, 1] (dato observado)
+    probability: float              # P(cumplir) suavizada (Laplace), en [0, 1] (estimación)
+
+
 # Destacado "hábito + valor" para el panel de Weekly Stats.
 class HabitHighlight(BaseModel):
     habit_id: int

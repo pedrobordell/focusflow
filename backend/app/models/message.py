@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
@@ -16,12 +16,15 @@ class Message(Base):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    # Dominio previsto: 'notification' | 'recommendation' (validación futura en Pydantic).
+    # 'recommendation' (el sistema propone un cambio) | 'notification' (el sistema informa).
     type: Mapped[str] = mapped_column(String(20), nullable=False)
     title: Mapped[str] = mapped_column(String(150), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    # Hora LOCAL, no UTC: el resto de la aplicación trabaja en hora local (date.today(),
+    # las fechas de las sesiones vienen del navegador) y la columna no guarda zona horaria.
+    # Mezclar UTC aquí haría que un mensaje creado a las 00:30 apareciera fechado "ayer".
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+        DateTime, nullable=False, default=datetime.now
     )
     is_read: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
