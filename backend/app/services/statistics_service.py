@@ -5,6 +5,7 @@ import pandas as pd
 from repositories.statistics_repository import StatisticsRepository
 from repositories.habit_repository import HabitRepository
 from schemas.statistics_schema import (
+    SLOT_LABELS,
     ComplianceSummary,
     DayPoint,
     HourPoint,
@@ -14,8 +15,8 @@ from schemas.statistics_schema import (
     SlotStat,
 )
 
-# Franjas horarias cada 6 horas
-SLOT_LABELS = ["Early morning", "Morning", "Afternoon", "Evening"]
+# SLOT_LABELS (franjas horarias cada 6 horas) se importa de los schemas y se reexporta aquí:
+# el motor de Recomendaciones también las necesita y así hay una única definición.
 
 # Nº de sesiones recientes que resume "Last 10 sessions" en Habit Stats.
 LAST_N = 10
@@ -73,7 +74,7 @@ class StatisticsService:
             self.stats_repo.get_sessions_for_habit(user_id, habit_id, date_from, date_to)
         )
 
-    # Deveuelve las Sessiones totales, las cumplidas y el ratio de cumplimiento de un DataFrame
+    # Deveuelve las sesiones totales, las cumplidas y el ratio de cumplimiento de un DataFrame
     @staticmethod
     def rate(df: pd.DataFrame) -> tuple:
         scheduled = int(len(df))
@@ -211,22 +212,16 @@ class StatisticsService:
             best_slot=best_slot,
         )
 
-    # --- Franjas horarias (compartido con Recomendaciones) ------------------
+    # --- Franjas horarias ----------------------------------------------------------
 
-    # Métricas de las 4 franjas horarias de un DataFrame ya filtrado (normalmente de un hábito).
-    # Devuelve una entrada por franja CON sesiones; las franjas vacías se omiten.
-    #
-    # 'probability' aplica el suavizado de Laplace ("regla de sucesión"): en vez de
-    # cumplidas / programadas se usa (cumplidas + 1) / (programadas + 2). Así una franja con
-    # 1 sesión cumplida no vale 100% sino 67%, y el valor se acerca al porcentaje observado
-    # solo a medida que se acumulan sesiones. Es lo que permite comparar franjas con distinto
-    # número de muestras sin que una casualidad gane siempre.
+    # Genera estadísticas de los slots con sesiones del DF (normalmente de un hábito).
+    # 'probability' aplica el suavizado de Laplace.
     def slot_stats(self, df: pd.DataFrame) -> list[SlotStat]:
         if df.empty:
             return []
         stats = []
         for index, label in enumerate(SLOT_LABELS):
-            group = df[df["slot"] == index]     # Filtra solo las filas que sean de la franja
+            group = df[df["slot"] == index]     # Filtra solo las sesiones del df que sean de la franja
             if group.empty:
                 continue
             scheduled, completed, rate = self.rate(group)
@@ -240,8 +235,9 @@ class StatisticsService:
             ))
         return stats
 
-    # Franja recomendable: la de mayor probabilidad entre las que tienen suficientes sesiones
-    # (desempate: más sesiones programadas). None si ninguna franja llega al mínimo.
+    # Devuelve el slot con 3 o más sesiones con mayor probabilidad, y en caso de empate con 
+    # más sesiones programadas.
+    # @staticmethod declara una funcionalidad de la clase que no necesita ninguna instancia de la misma.
     @staticmethod
     def best_slot(slots: list[SlotStat]):
         usable = [slot for slot in slots if slot.scheduled >= MIN_SLOT_SESSIONS]

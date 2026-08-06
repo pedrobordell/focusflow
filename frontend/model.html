@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Aplica el tema guardado antes de pintar para evitar parpadeo
+        if (localStorage.getItem("theme") === "light") {
+            document.documentElement.classList.add("light");
+        }
+    </script>
+    <title>FocusFlow - Model</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" sizes="48x48" type="image/png" href="img/favicons.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/authentication.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/model.js"></script>
+</head>
+<body>
+    <header class="mainHeader">
+        <div class="container">
+            <div class="navigation">
+                <div class="navLeft">
+                    <button type="button" id="navToggle" class="navToggle" aria-label="Open sections" aria-expanded="false">☰</button>
+                    <div class="logo">
+                        <h1><a href="index.html">FocusFlow</a></h1>
+                        <img src="img/favicons.png" width="64">
+                    </div>
+                    <div id="sectionMenu" class="sectionMenu" role="menu" aria-hidden="true">
+                        <div class="sectionMenuHeader">
+                            <h2 class="sectionMenuTitle">FocusFlow</h2>
+                            <button type="button" id="sectionMenuClose" class="sectionMenuClose" aria-label="Close menu">✕</button>
+                        </div>
+                        <nav class="sectionList" id="sectionList"></nav>
+                    </div>
+                </div>
+                <nav class="menu">
+                    <ul id="subsectionNav" class="subsectionNav"></ul>
+                    <ul class="menuActions">
+                        <li><a id="logoutBtn" class="logoutBtn">Logout</a></li>
+                        <li><button type="button" id="themeToggle" class="themeToggle" aria-label="Toggle theme">☀</button></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <div class="requiresAuth" id="modelContainer">
+                <div class="dashboardHeader">
+                    <h2>Model</h2>
+                </div>
+
+                <p class="emptyState" id="modelError" hidden></p>
+
+                <div class="statsSplit modelSplit">
+                    <!-- Izquierda: el árbol entrenado con el histórico (PNG del servidor).
+                         Va enlazado a sí mismo para poder abrirlo a tamaño completo: en media
+                         columna el texto de las ramas se queda pequeño. -->
+                    <figure class="chartCard">
+                        <a id="chartTreeLink" target="_blank" rel="noopener">
+                            <img id="chartTree" alt="Decision tree trained on your session history">
+                        </a>
+                        <figcaption class="chartHint">
+                            A decision tree learns from your completed sessions which time slots and
+                            weekdays work best for you, and uses it to diagnose each habit.<br>
+                            Open the image to see it full size.
+                        </figcaption>
+                    </figure>
+
+                    <!-- Derecha: diagnóstico de cada hábito -->
+                    <div class="statsPanel" id="insightsPanel">
+                        <p class="emptyState" id="insightsEmpty" hidden></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plantilla de la tarjeta de un hábito; se clona una vez por hábito desde model.js -->
+    <template id="insightCardTemplate">
+        <div class="highlightCard">
+            <h4>
+                <span class="insightHabit"></span>
+                <span class="stateBadge insightState"></span>
+            </h4>
+            <p class="highlightValue insightProbability">—</p>
+            <p class="highlightMeta insightCurrent"></p>
+            <p class="highlightMeta insightSuggestion"></p>
+        </div>
+    </template>
+
+    <footer>
+        <div class="footerInner">
+            <p class="footerProject">FocusFlow · Final Degree Project</p>
+            <p class="footerMeta">Pedro Bordell Martín — Grado en Ingeniería Informática</p>
+            <p class="footerMeta">Universidad Europea Miguel de Cervantes · Academic year 2025/2026</p>
+            <p class="footerNote">
+                Academic prototype ·
+                <a href="https://github.com/pedrobordell/focusflow" target="_blank" rel="noopener">Source code on GitHub</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

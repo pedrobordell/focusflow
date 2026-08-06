@@ -20,9 +20,6 @@ class Message(Base):
     type: Mapped[str] = mapped_column(String(20), nullable=False)
     title: Mapped[str] = mapped_column(String(150), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    # Hora LOCAL, no UTC: el resto de la aplicación trabaja en hora local (date.today(),
-    # las fechas de las sesiones vienen del navegador) y la columna no guarda zona horaria.
-    # Mezclar UTC aquí haría que un mensaje creado a las 00:30 apareciera fechado "ayer".
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now
     )

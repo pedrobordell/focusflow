@@ -28,8 +28,7 @@ $(document).ready(function () {
         return node;
     }
 
-    // "2026-07-28T09:15:00" -> "28 Jul 2026, 09:15". Los mensajes de hoy se muestran
-    // solo con la hora, que es lo que interesa cuando se acaban de generar.
+    // "2026-07-28T09:15:00" -> "28 Jul 2026, 09:15"
     function formatDate(isoText) {
         var when = new Date(isoText);
         if (isNaN(when)) return isoText;
@@ -58,7 +57,7 @@ $(document).ready(function () {
             await authFetch(`/messages/${message.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ is_read: !message.is_read })
+                body: JSON.stringify({ is_read: !message.is_read }) // -> convierte a {"is_read": true/false}
             });
             if (!localStorage.getItem("token")) return;   // 401: redirigiendo a login
             await reload();
@@ -84,14 +83,13 @@ $(document).ready(function () {
     // --- Render -------------------------------------------------------------
 
     function buildItem(message) {
-        // Los no leídos se distinguen con la clase 'unread' (borde de color y título en negrita).
         var item = el("li", "messageItem" + (message.is_read ? "" : " unread"));
 
         var head = el("div", "messageHead");
         head.appendChild(el("span", "messageTitle", message.title));
-        // El tipo distingue lo que el sistema PROPONE de lo que solo INFORMA.
         head.appendChild(el("span", "messageTag tag-" + message.type,
             message.type === "recommendation" ? "Recommendation" : "Reminder"));
+
         item.appendChild(head);
 
         item.appendChild(el("p", "messageContent", message.content));
@@ -122,6 +120,7 @@ $(document).ready(function () {
         listEl.innerHTML = "";
         emptyEl.hidden = messages.length > 0;
 
+        // Obtiene el número de mensajes no leídos
         var unread = messages.filter(function (m) { return !m.is_read; }).length;
         unreadEl.textContent = unread + " unread";
         unreadEl.hidden = unread === 0;
@@ -133,20 +132,17 @@ $(document).ready(function () {
 
     // --- Carga --------------------------------------------------------------
 
-    // Solo relee el listado (para después de marcar leído o borrar).
     async function reload() {
         var messages = await authFetch("/messages");
-        if (!messages) return;                       // 401: authFetch ya redirige a login
+        if (!messages) return;
         render(messages);
     }
 
     async function load() {
         try {
-            // El actor "Sistema" genera al abrir la pantalla. Es idempotente: si los mensajes
-            // de hoy ya existen, no se duplican.
-            await authFetch("/recommendations/generate", { method: "POST" });
+            await authFetch("/recommendations/generate", { method: "POST" });   // Se generan los mensajes (POST)
             if (!localStorage.getItem("token")) return;
-            await reload();
+            await reload();                                                     // Se obtienen los mensajes (GET)
         } catch (error) {
             console.error("Error al cargar los mensajes:", error);
             showError("Could not load your messages. " + error.message);

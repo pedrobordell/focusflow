@@ -16,9 +16,6 @@ class MessageService:
         return self.message_repo.get_by_user(user_id)
 
     # Obtiene un mensaje comprobando que pertenece al usuario.
-    # Si no existe o no es suyo -> ValueError que el controller traduce a 404. Mismo criterio
-    # que en hábitos y sesiones: no se distingue "no existe" de "no es tuyo" para no revelar
-    # la existencia de mensajes ajenos.
     def get_message(self, message_id: int, user_id: int) -> Message:
         message = self.message_repo.get_by_id(message_id)
         if message is None or message.user_id != user_id:

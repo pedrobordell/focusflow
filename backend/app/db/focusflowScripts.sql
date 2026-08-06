@@ -25,6 +25,7 @@ CREATE TABLE sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     habit_id INT NOT NULL,
     date DATE NOT NULL,
+    end_date DATE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     completed BOOLEAN NOT NULL DEFAULT FALSE,

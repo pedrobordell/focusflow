@@ -22,9 +22,9 @@ class MessageRepository:
             self.session.refresh(message)
         return messages
 
-    # Devuelve todos los mensajes del usuario, del más reciente al más antiguo. Dentro de una
-    # misma generación (todos comparten created_at) el id ascendente mantiene el orden de
-    # relevancia con el que los produjo la estrategia.
+    # Devuelve todos los mensajes del usuario, del más reciente al más antiguo. En caso de
+    # ser generados al mismo tiempo, el id ascendente mantiene el orden de relevancia con 
+    # el que los produjo la estrategia.
     def get_by_user(self, user_id: int) -> list[Message]:
         stmt = (
             select(Message)
@@ -33,11 +33,11 @@ class MessageRepository:
         )
         return list(self.session.scalars(stmt).all())
 
-    # Devuelve los mensajes que el usuario tiene creados en un día concreto (más recientes primero).
+    # Devuelve los mensajes del usuario en un día concreto.
     def get_by_user_and_day(self, user_id: int, day: date) -> list[Message]:
         stmt = (
             select(Message)
-            .where(Message.user_id == user_id, *self._created_on(day))
+            .where(Message.user_id == user_id, *self._created_on(day)) # -> Desempaqueta las dos condiciones
             .order_by(Message.created_at.desc(), Message.id)
         )
         return list(self.session.scalars(stmt).all())
@@ -67,9 +67,11 @@ class MessageRepository:
         self.session.delete(message)
         self.session.commit()
 
-    # Condición "creado durante el día 'day'". Se expresa como un rango [00:00, 00:00 del día
-    # siguiente) en vez de con una función SQL tipo DATE(created_at): así funciona igual en
-    # MySQL y en el SQLite de los tests, y puede aprovechar un índice sobre la columna.
+    # Helper estático y reutilizable que devuelve dos condiciones que se usan para filtrar en una sentencia
+    # where por el rango de tiempo exacto [00:00:00 - 00:00:00 del día siguiente).
+    # Es mejor expresarlas como rango, y no como func.date(created_at) == day, porque poner funciones en sentencias
+    # where impide al motor de la base de datos usar índices sobre la columna (InnoDB los genera
+    # automáticamente para las FK, como user_id)
     @staticmethod
     def _created_on(day: date) -> tuple:
         start = datetime.combine(day, time.min)

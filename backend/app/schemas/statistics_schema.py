@@ -27,6 +27,12 @@ class HourPoint(BaseModel):
     compliance_rate: float
 
 
+# Etiquetas de las 4 franjas horarias (índice 0..3). Viven aquí, en los schemas, y no en el
+# service porque las necesitan tanto la capa de datos como la estrategia de recomendación, y
+# esta última debe poder importarlas SIN arrastrar SQLAlchemy: un módulo de schemas es puro.
+SLOT_LABELS = ["Early morning", "Morning", "Afternoon", "Evening"]
+
+
 # Métrica de una franja horaria (0-6 / 6-12 / 12-18 / 18-24) de un hábito.
 # La consumen tanto Estadísticas ("Best time slot") como el motor de Recomendaciones
 # (propuesta de horario de RF14): un único criterio para toda la aplicación.

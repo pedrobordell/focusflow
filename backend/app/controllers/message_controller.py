@@ -29,8 +29,7 @@ def list_messages(
     return message_service.list_messages(current_user.id)
 
 
-# Marca/desmarca como leído un mensaje propio (actualización parcial, como el tracking
-# de las sesiones: el cuerpo solo trae el campo que cambia)
+# Marca/desmarca como leído un mensaje propio (PATCH para actualización parcial)
 @message_controller.patch("/{message_id}", response_model=MessageResponse, status_code=status.HTTP_200_OK)
 def set_message_read(
     message_id: int,

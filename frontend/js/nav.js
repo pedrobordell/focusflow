@@ -33,9 +33,9 @@ const NAV_SECTIONS = [
         screens: [
             { label: "Habit Stats", href: "habit-stats.html" },
             { label: "Weekly Stats", href: "weekly-stats.html" },
+            { label: "Model", href: "model.html" },
         ],
     },
-    // Futuras: ai
 ];
 
 $(document).ready(function () {

@@ -8,19 +8,21 @@ _ACCENT = "#4493f8"
 _MUTED = "#999999"
 
 
-# Convierte una figura en PNG
-def _to_png(fig: Figure) -> bytes:
+# Convierte una figura en PNG.
+# Público (igual que empty_png) porque la gráfica del árbol de Recomendaciones reutiliza
+# estas dos utilidades: son plomería de figuras, no algo propio de Estadísticas.
+def to_png(fig: Figure) -> bytes:
     buffer = io.BytesIO()                                       # Crea un fichero en memoria
     fig.savefig(buffer, format="png", bbox_inches="tight")      # Guarda la figura 
     return buffer.getvalue()                                    # Devuelve un Blob
 
 # Genera un PNG placeholder para cuando no haya datos que graficarcd 
-def _empty_png(message: str = "No data for this period") -> bytes:
+def empty_png(message: str = "No data for this period") -> bytes:
     fig = Figure(figsize=(6, 3.2), dpi=100)
     ax = fig.subplots()
     ax.text(0.5, 0.5, message, ha="center", va="center", fontsize=13, color=_MUTED)
     ax.axis("off")
-    return _to_png(fig)
+    return to_png(fig)
 
 # Dibuja un gráfico de barras y lo devuelve como bytes
 def _bar_png(labels, values, title, ylabel, ylim=None, value_suffix=""):
@@ -43,7 +45,7 @@ def _bar_png(labels, values, title, ylabel, ylim=None, value_suffix=""):
         # Escribe el número encima de cada barra
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height(),
                 f"{value:g}{value_suffix}", ha="center", va="bottom", fontsize=8)
-    return _to_png(fig)
+    return to_png(fig)
 
 # Dibuja un gráfico de líneas y lo devuelve como bytes
 def _line_png(labels, values, title, ylabel, ylim=None):
@@ -66,7 +68,7 @@ def _line_png(labels, values, title, ylabel, ylim=None):
 # Weekly Stats (línea): % de cumplimiento por día del periodo.
 def compliance_by_day(points: list) -> bytes:
     if not points:
-        return _empty_png()
+        return empty_png()
     # Obtiene las etiquetas (fechas formateadas) del eje x
     labels = [p.date.strftime("%m-%d") for p in points]
     # Obtiene la altura: Multiplica el rate * 100 y lo redondea a un decimal
@@ -76,7 +78,7 @@ def compliance_by_day(points: list) -> bytes:
 # Habit Stats (barras): % de cumplimiento por hora de inicio del día.
 def compliance_by_hour(points: list) -> bytes:
     if not points:
-        return _empty_png()
+        return empty_png()
     # Obtiene las etiquetas (horas formateadas) del eje x
     labels = [f"{p.hour:02d}h" for p in points]
     values = [round(p.compliance_rate * 100, 1) for p in points]

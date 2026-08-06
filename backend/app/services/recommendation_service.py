@@ -5,31 +5,22 @@ import pandas as pd
 from models.message import Message
 from repositories.habit_repository import HabitRepository
 from repositories.message_repository import MessageRepository
-from schemas.recommendation_schema import HabitContext
+from schemas.recommendation_schema import HabitContext, SessionFeature
 from services.recommendation_strategy import RecommendationStrategy
 from services.statistics_service import StatisticsService
 
-# Ventana sobre la que se mide el cumplimiento: los últimos 30 días. Es la misma que usa el
-# widget del dashboard, para que el porcentaje del que habla la recomendación coincida con
-# el que el usuario está viendo en pantalla.
+# Ventana sobre la que se mide el cumplimiento (últimos 30 días)
 ANALYSIS_DAYS = 30
 
-# Las franjas horarias, en cambio, se calculan sobre TODO el histórico: la hora a la que a
-# alguien le cuadra un hábito es una preferencia estable, y cuantas más sesiones entren en el
-# cálculo más fiable es la probabilidad estimada.
-EPOCH = date(1970, 1, 1)
+# Para pedir todo el histórico del usuario en una sola consulta, sin filtrar por fechas. 
+FAR_PAST = date(1970, 1, 1)
 FAR_FUTURE = date(9999, 12, 31)
 
 
-# Orquestador del subsistema de Recomendaciones. Une las tres capas sin implementar ninguna:
-#
-#   1. pide los datos agregados a StatisticsService (capa de datos, Pandas),
-#   2. se los pasa a la estrategia inyectada (capa de estrategia),
-#   3. guarda lo que devuelva como Message (capa de persistencia).
-#
-# La estrategia llega por el constructor, no se crea aquí dentro: así el servicio no depende
-# de NINGUNA implementación concreta y se le puede inyectar otra (por ejemplo, un modelo
-# predictivo) sin tocar este fichero.
+# Orquestador del subsistema de Recomendaciones. Une las tres capas sin implementar ninguna
+#   1. StatisticsService (capa de datos),
+#   2. La estrategia inyectada (capa de estrategia),
+#   3. Message (capa de persistencia).
 class RecommendationService:
 
     def __init__(
@@ -46,21 +37,15 @@ class RecommendationService:
 
     # --- Punto de entrada ---------------------------------------------------
 
-    # Analiza al usuario, guarda los mensajes nuevos y devuelve TODOS los de hoy.
-    #
-    # Es idempotente: no se inserta un mensaje cuyo título ya se haya generado hoy, así que
-    # abrir la aplicación diez veces seguidas no llena la bandeja de duplicados. Esa es la
-    # razón de que los títulos sean deterministas ("Focus on Reading" y no "¡Ánimo!").
+    # Genera los nuevos mensajes comprobando que no se hayan generado ya ese mismo día
     def generate_and_store(self, user_id: int, today: date = None) -> list[Message]:
         today = today or date.today()
 
         contexts = self.build_contexts(user_id, today)
         recommendations = self.strategy.generate(contexts)
 
-        # Toda la tanda comparte el mismo instante en vez de dejar que cada fila resuelva su
-        # propio default. Así, al ordenar por fecha descendente, los mensajes de una misma
-        # generación no se invierten entre sí y conservan el orden de relevancia (el
-        # desempate por id ascendente del repositorio).
+        # Toda la tanda comparte el mismo instante. Así al ordenarlos por fecha se ordenan 
+        # por id y no se invierten, porque en caso de desempate se decide por id.
         generated_at = datetime.now()
 
         existing_titles = self.message_repo.get_titles_created_on(user_id, today)
@@ -84,8 +69,7 @@ class RecommendationService:
     # Construye la fotografía de cada hábito del usuario.
     #
     # Se hace con UNA sola consulta (todo el histórico del usuario) que después se trocea por
-    # hábito con Pandas. La alternativa, una consulta por hábito, multiplicaría los viajes a
-    # la base de datos sin ganar nada.
+    # hábito con Pandas.
     def build_contexts(self, user_id: int, today: date = None) -> list[HabitContext]:
         today = today or date.today()
 
@@ -93,14 +77,15 @@ class RecommendationService:
         if not habits:
             return []
 
-        df_all = self.stats_service.sessions_df(user_id, EPOCH, FAR_FUTURE)
-        # Los hábitos que aparecen en el DataFrame tienen alguna sesión (pasada o futura).
+        df_all = self.stats_service.sessions_df(user_id, FAR_PAST, FAR_FUTURE)
+        # Los hábitos del DataFrame que tienen alguna sesión (pasada o futura).
         scheduled_habit_ids = set(df_all["habit_id"])
 
-        # Las métricas solo pueden mirar al pasado: una sesión de la semana que viene está
-        # sin cumplir porque todavía no ha llegado, no porque el usuario haya fallado.
+        # Obtiene un df con las sesiones pasadas (las que sirven para realizar métricas)
         empty_df = df_all.iloc[0:0]
         df_past = df_all[df_all["date"] <= today] if not df_all.empty else empty_df
+
+        # Obtiene un diccionario con un df por habit_id con sus respectivas sesiones
         sessions_by_habit = (
             {habit_id: group for habit_id, group in df_past.groupby("habit_id", sort=False)}
             if not df_past.empty else {}
@@ -135,8 +120,34 @@ class RecommendationService:
                 ever_scheduled=habit.id in scheduled_habit_ids,
                 slots=slots,
                 best_slot=self.stats_service.best_slot(slots),
+                sessions=self._session_features(habit_df),
             ))
         return contexts
+
+    # Convierte las sesiones pasadas de un hábito en las filas que entrenan al modelo.
+    #
+    # Se hace AQUÍ, en la capa de datos, y no en la estrategia: así la estrategia sigue
+    # recibiendo solo números y no se entera de que existe Pandas.
+    #
+    # day_index se cuenta desde la primera sesión del hábito, no desde una fecha absoluta,
+    # porque lo único que se le pide es medir la TENDENCIA (si el cumplimiento sube o baja
+    # con el tiempo); el origen concreto de la cuenta da igual para el signo de la pendiente.
+    @staticmethod
+    def _session_features(df: pd.DataFrame) -> list[SessionFeature]:
+        if df.empty:
+            return []
+
+        first_date = df["date"].min()
+        return [
+            SessionFeature(
+                slot=int(row.slot),
+                weekday=row.date.weekday(),
+                duration=float(row.duration),
+                completed=bool(row.completed),
+                day_index=(row.date - first_date).days,
+            )
+            for row in df.itertuples()
+        ]
 
     # Días transcurridos desde la sesión más reciente del DataFrame. None si está vacío.
     @staticmethod
@@ -145,9 +156,8 @@ class RecommendationService:
             return None
         return (today - df["date"].max()).days
 
-    # Racha en curso: sesiones cumplidas consecutivas contando hacia atrás desde la más
-    # reciente. Se corta en cuanto aparece una sin cumplir. El DataFrame ya viene ordenado
-    # por fecha y hora ascendente desde el repositorio, así que se recorre del final al principio.
+    # Sesiones cumplidas consecutivas contando hacia atrás desde la más reciente. El Dataframe ya viene
+    # ordenado por fecha y hora
     @staticmethod
     def _current_streak(df: pd.DataFrame) -> int:
         streak = 0

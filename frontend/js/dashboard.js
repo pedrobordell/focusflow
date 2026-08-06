@@ -50,21 +50,19 @@ $(document).ready(function () {
     }
     loadCompliance();
 
-    // Rellena el widget "Recommendation of the day".
-    // El actor "Sistema" genera los mensajes al abrir la app: no hay tareas programadas, la
-    // generación se dispara aquí. Es idempotente, así que recargar el dashboard no duplica nada.
+    // Rellena el widget "Recommendation of the day"
     function loadRecommendation() {
         var titleEl = document.getElementById("recTitle");
         var contentEl = document.getElementById("recContent");
         if (!titleEl) return;
         authFetch("/recommendations/generate", { method: "POST" })
             .then(function (messages) {
-                if (!messages) return;              // 401: authFetch ya redirige a login
-                // De todos los mensajes de hoy, el widget muestra el que PROPONE algo.
+                if (!messages) return;
+                // Obtiene el primer mensaje de tipo recommendation
                 var recommendation = messages.find(function (m) {
                     return m.type === "recommendation";
                 });
-                if (!recommendation) return;        // sin histórico se queda el texto de bienvenida
+                if (!recommendation) return;
                 titleEl.textContent = recommendation.title;
                 contentEl.textContent = recommendation.content;
             })
