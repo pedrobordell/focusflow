@@ -14,6 +14,8 @@ $(document).ready(function () {
 
     var HOUR_PX = 72;
     var PX_PER_MIN = HOUR_PX / 60;
+    var COMPACT_PX = 62;    // Alto de un chip completo (hora + nombre + tipo + acciones)
+    var MIN_EVT_PX = 20;    // Alto mínimo del chip
     var DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -234,8 +236,11 @@ $(document).ready(function () {
 
         // Contenedor del chip; se calculan top y height a partir de los bounds
         var chip = el("div", "evt imp" + habit.importance + (session.completed ? " completed" : ""));
+        var heightPx = Math.max(bounds.heightMin * PX_PER_MIN, MIN_EVT_PX);
+        // Si no cabe todo en el chip, se compacta
+        if (heightPx < COMPACT_PX) chip.classList.add("evtCompact");
         chip.style.top = (bounds.topMin * PX_PER_MIN) + "px";
-        chip.style.height = Math.max(bounds.heightMin * PX_PER_MIN, 18) + "px";
+        chip.style.height = heightPx + "px";
         chip.title = habit.name + (habit.type ? " (" + habit.type + ")" : "") + " · " +
             session.start_time.slice(0, 5) + "–" + session.end_time.slice(0, 5) +
             (overnight ? " (+1)" : "");

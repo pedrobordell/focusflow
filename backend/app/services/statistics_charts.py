@@ -55,12 +55,19 @@ def _line_png(labels, values, title, ylabel, ylim=None):
     ax.set_title(title)
     ax.set_ylabel(ylabel)
     if ylim is not None:
-        ax.set_ylim(*ylim)
+        low, high = ylim
+        # Aire arriba y abajo. El marcador de un punto se dibuja CENTRADO sobre su valor, así
+        # que uno en el límite exacto (p. ej. 100 %) se quedaría con media circunferencia fuera
+        # del área de ejes y Matplotlib la recorta (los Line2D se recortan por defecto).
+        # Las marcas se fijan a los valores reales para que el margen no parezca parte de la escala.
+        margin = (high - low) * 0.05
+        ax.set_ylim(low - margin, high + margin)
+        ax.set_yticks([low + (high - low) * i / 4 for i in range(5)])
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     # Rota las etiquetas de las fechas 45º para que no se solapen
     ax.tick_params(axis="x", rotation=45, labelsize=7)
-    return _to_png(fig)
+    return to_png(fig)
 
 
 # --- Gráficas concretas ------------------------------------------------------

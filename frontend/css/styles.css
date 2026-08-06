@@ -346,7 +346,7 @@ input:-webkit-autofill:active {
 .dashboardGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 64px;
     margin-bottom: 64px;
 }
 
@@ -620,6 +620,38 @@ input:-webkit-autofill:active {
 
 .evtBtn:hover {
     transform: scale(1.15);
+}
+
+/* Chip corto */
+.evtCompact {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.evtCompact .evtTime { flex-shrink: 0; }
+
+/* Sin min-width:0 el nombre se desbordaría */
+.evtCompact .evtName { min-width: 0; }
+
+.evtCompact .evtType { display: none; }
+
+/* Las acciones dejan de ocupar fila propia y se anclan a la esquina.
+   El fondo propio evita que las acciones se sobrepongan al nombre del chip */
+.evtCompact .evtActions {
+    position: absolute;
+    right: 4px;
+    bottom: 2px;
+    margin-top: 0;
+    background-color: inherit;
+    border-radius: 4px;
+    padding: 0 2px;
+}
+
+/* Solo se ocultan donde hay puntero: en táctil no hay hover y serían inalcanzables */
+@media (hover: hover) {
+    .evtCompact .evtActions { display: none; }
+    .evtCompact:hover .evtActions { display: flex; }
 }
 
 /* Color del chip por importancia del hábito */
@@ -1079,7 +1111,9 @@ input:-webkit-autofill:active {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
-    align-items: start;
+    /* Sin 'align-items' a propósito: el valor por defecto del grid es 'stretch', y es lo que
+       hace que las dos columnas acaben a la misma altura (la de la más alta). Con 'start'
+       cada una medía lo que su contenido y el panel se veía descuadrado. */
 }
 
 /* Columna derecha: tarjetas apiladas verticalmente. */
@@ -1094,6 +1128,16 @@ input:-webkit-autofill:active {
     border: 1px solid var(--divider);
     border-radius: 8px;
     padding: 20px;
+}
+
+/* Cuando la gráfica es más alta que el panel, .statsPanel se estira (lo hace .statsSplit) pero
+   sus tarjetas se quedaban a su alto natural y el sobrante se veía como un vacío bajo la última.
+   Con flex-grow reparten ese espacio entre todas.
+   'flex-basis: auto' y 'flex-shrink: 0' son deliberados: el reparto se suma a la altura que pide
+   el contenido en vez de sustituirla, así una tarjeta con más texto (las de la pantalla Model)
+   nunca se comprime por debajo de lo que necesita. */
+.statsPanel .highlightCard {
+    flex: 1 0 auto;
 }
 
 .highlightCard h4 {
@@ -1120,20 +1164,82 @@ input:-webkit-autofill:active {
 .deltaUp { color: #2e9e5b; }
 .deltaDown { color: #d9534f; }
 
-/* Cada gráfica es un PNG (fondo blanco generado por Matplotlib) enmarcado. */
+/* Cada gráfica es un PNG (fondo blanco generado por Matplotlib) enmarcado.
+   Es contenedor flex para centrar el PNG cuando la tarjeta se estira por encima de su alto
+   natural (ver .statsSplit). El PNG se deja a su tamaño nativo en vez de escalarlo: ampliar
+   una imagen de resolución fija emborronaría el texto de los ejes. El aire que queda es
+   blanco, igual que el fondo del PNG y el de la tarjeta, así que no se nota.
+   'column' es necesario para que el <figcaption> de la pantalla Model siga bajo la imagen. */
 .chartCard {
     border: 1px solid var(--divider);
     border-radius: 8px;
     padding: 12px;
     background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;        /* centra en horizontal (eje transversal) */
+    justify-content: center;    /* centra en vertical (eje principal) */
 }
 
 .chartCard img {
     display: block;
     max-width: 100%;
     height: auto;
-    margin: 0 auto;
 }
+
+/* En la pantalla Model el <img> va envuelto en un <a> para poder abrirlo a tamaño completo.
+   Como elemento flex, el ancla se dimensionaría por su contenido y el max-width del <img>
+   dejaría de resolverse contra el ancho de la tarjeta: el PNG del árbol (1200 px) desbordaría. */
+.chartCard a {
+    display: block;
+    max-width: 100%;
+}
+
+/* ===== Pantalla Model (árbol de decisión + diagnóstico) ===== */
+
+/* El árbol es una imagen ancha: se le da más sitio que al panel de diagnóstico. */
+.modelSplit { grid-template-columns: 3fr 2fr; }
+
+/* Pie de la gráfica del árbol. Recoge la explicación de qué aprende el modelo, que antes vivía en
+   un párrafo suelto sobre la rejilla: pegada a la imagen se lee mejor y la pantalla queda como las
+   demás (título -> contenido, sin introducción).
+   El max-width evita que el texto se estire a lo ancho, porque esta es la tarjeta más ancha de la
+   app (.modelSplit le da 3fr). Solo la usa model.html. */
+.chartHint {
+    margin-top: 8px;
+    max-width: 60ch;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #666666;     /* fijo: la tarjeta de gráfica tiene fondo blanco en ambos temas */
+}
+
+/* El nombre del hábito manda en la tarjeta, así que no hereda el gris de .highlightCard h4. */
+.insightHabit {
+    font-size: 14px;
+    color: var(--text);
+}
+
+/* Insignia con el estado del hábito, al lado de su nombre. El color transmite la gravedad
+   pero el TEXTO siempre está: no se distingue solo por color. */
+.stateBadge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    vertical-align: middle;
+    color: #ffffff;
+}
+
+.stateAbandoned { background-color: #d9534f; }
+.stateAtRisk    { background-color: #d9822b; }
+.stateImproving { background-color: var(--accent); }
+.stateOnTrack   { background-color: #2e9e5b; }
+.stateUnknown   { background-color: #777777; }
 
 /* Widget de cumplimiento del dashboard: caja sólida (no el placeholder discontinuo). */
 #complianceStat {
@@ -1317,82 +1423,56 @@ input:-webkit-autofill:active {
 footer {
     background-color: var(--footer-bg);
     color: var(--footer-text);
-    padding: 64px 0 24px;
+    padding: 40px 0 32px;
 }
 
-.footerTop {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 64px;
-    margin-bottom: 24px;
-    padding: 0px 128px;
+/* Bloque único centrado: identifica el trabajo y quién lo firma. No hay mapa de sitio
+   porque la navegación ya la da el header (nav.js) y duplicarla solo añadía enlaces muertos. */
+.footerInner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
 }
 
-.footerLogo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+.footerProject {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
 }
 
-.footerLogo h3 {
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.footerColumn p {
+.footerMeta {
     color: var(--muted);
     font-size: 14px;
     line-height: 1.6;
 }
 
-.footerColumn h4 {
-    font-size: 16px;
-    margin-bottom: 20px;
-    font-weight: 600;
+/* Última línea, separada por un filete: naturaleza del proyecto y enlace al repositorio. */
+.footerNote {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--divider);
+    color: var(--muted);
+    font-size: 13px;
 }
 
-.footerColumn ul {
-    list-style: none;
-}
-
-.footerColumn ul li {
-    margin-bottom: 12px;
-}
-
-.footerColumn a {
+.footerNote a {
     color: var(--muted);
     text-decoration: none;
-    font-size: 14px;
     transition: color 0.2s;
 }
 
-.footerColumn a:hover {
+.footerNote a:hover {
     color: var(--text);
-}
-
-.footerContacto li {
-    color: var(--muted);
-    font-size: 14px;
-}
-
-.footerBot {
-    border-top: 1px solid var(--divider);
-    padding-top: 24px;
-    text-align: center;
-}
-
-.footerBot p {
-    color: var(--muted);
-    font-size: 14px;
 }
 
 /* ===== Responsive (todos los tamaños en un solo sitio) ===== */
 
-/* Tablet: el padding lateral fijo de 128px del header/footer es inviable. */
+/* Tablet: el padding lateral fijo del header es inviable.
+   El footer ya no aparece aquí: .footerInner es un bloque centrado con max-width, así que
+   se adapta solo y no necesita reajuste por breakpoint. */
 @media (max-width: 900px) {
     .mainHeader .container { padding: 0 24px; }
-    .footerTop { padding: 0 24px; gap: 32px; }
 }
 
 /* Tablet estrecha y móvil. */
@@ -1421,8 +1501,6 @@ footer {
 @media (max-width: 600px) {
     .mainHeader .container { padding: 0 16px; }
     .container { padding: 0 16px; }
-
-    .footerTop { grid-template-columns: 1fr; gap: 24px; }
 
     .weekBar { flex-wrap: wrap; }
 
