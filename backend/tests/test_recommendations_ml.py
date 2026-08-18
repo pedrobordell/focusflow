@@ -348,7 +348,7 @@ def _seed(client, token, habit_id, specs):
                          headers=_auth(token))
 
 
-# Histórico amplio y con patrón: mañanas cumplidas, tardes no.
+# Crea 30 sesiones para los últimos 30 días, alternando 08.00 cumplidas y 19.00 no.
 def _seed_learnable(client, token, habit_id):
     _seed(client, token, habit_id, [
         (-offset, 8, True) if offset % 2 else (-offset, 19, False)

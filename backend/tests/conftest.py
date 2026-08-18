@@ -36,6 +36,7 @@ def client():
 
     main.app.dependency_overrides[get_db] = override_get_db
     try:
+        # Instancia un cliente de pruebas conectado a FastAPI
         yield TestClient(main.app)
     finally:
         main.app.dependency_overrides.clear()

@@ -34,8 +34,6 @@ SLOT_LABELS = ["Early morning", "Morning", "Afternoon", "Evening"]
 
 
 # Métrica de una franja horaria (0-6 / 6-12 / 12-18 / 18-24) de un hábito.
-# La consumen tanto Estadísticas ("Best time slot") como el motor de Recomendaciones
-# (propuesta de horario de RF14): un único criterio para toda la aplicación.
 class SlotStat(BaseModel):
     slot: int                       # índice de la franja, 0..3
     label: str                      # etiqueta legible ("Morning", ...)

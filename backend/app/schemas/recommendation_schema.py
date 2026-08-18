@@ -16,12 +16,8 @@ from schemas.statistics_schema import SlotStat
 
 
 # Una sesión pasada reducida a las variables que entiende un modelo.
-#
-# Los agregados (compliance_rate, slots...) le bastan a la estrategia por REGLAS, pero un
-# clasificador necesita FILAS INDIVIDUALES: una por sesión, cada una con su etiqueta
-# (completed). Por eso HabitContext lleva las dos cosas.
 class SessionFeature(BaseModel):
-    slot: int                                   # franja horaria 0-3 (mismo criterio que SlotStat)
+    slot: int                                   # franja horaria 0-3
     weekday: int                                # 0 = lunes ... 6 = domingo
     duration: float                             # minutos
     completed: bool                             # la ETIQUETA que el modelo aprende a predecir
@@ -43,9 +39,8 @@ class HabitContext(BaseModel):
     ever_scheduled: bool                        # False si el hábito no tiene ninguna sesión
     slots: list[SlotStat]                       # métricas por franja del histórico
     best_slot: Optional[SlotStat]
-    # Sesiones pasadas, una a una. Solo las usa la estrategia con modelo; la de reglas las
-    # ignora. Por defecto lista vacía para no romper a quien construya un contexto sin ellas.
-    sessions: list[SessionFeature] = []
+    sessions: list[SessionFeature] = []         # Sesiones pasadas, una a una, con las variables que 
+                                                # usa el modelo, la de reglas las ignora
 
 
 # Mensaje que propone la estrategia.
@@ -55,24 +50,16 @@ class Recommendation(BaseModel):
     content: str
 
 
-# Diagnóstico de un hábito hecho por el modelo (RF16).
-#
-# A diferencia de HabitContext y Recommendation, este SÍ sale por la API
-# (GET /recommendations/insights), porque la pantalla "Model" lo pinta tal cual.
-# Los campos opcionales son None cuando no se ha podido entrenar (state = "unknown"):
-# el sistema prefiere callarse a inventarse una predicción.
+# Diagnóstico de un hábito hecho por el modelo
 class HabitInsight(BaseModel):
     habit_id: int
     habit_name: str
     state: str                                  # abandoned|at_risk|improving|on_track|unknown
     probability: Optional[float]                # P(cumplir) tal y como lo programa AHORA
     trend: float                                # pendiente de la regresión (+ mejora, − empeora)
-    # Lectura de la pendiente ya interpretada ("Trending up"/"down"/"Steady"). La decide el
-    # backend para que el umbral de "cuánto es una tendencia" viva en un único sitio y no
-    # haya que repetirlo en JavaScript.
-    trend_label: str
-    current_label: Optional[str]                # "Monday evening": su franja/día habituales
+    trend_label: str                            # Interpretación de la pendiente ("Trending up"/"down"/"Steady")
+    current_label: Optional[str]                # Día + Franja actual
     best_slot: Optional[int]
     best_weekday: Optional[int]
     best_probability: Optional[float]           # P(cumplir) en la combinación propuesta
-    best_label: Optional[str]                   # "Saturday morning": lo que propone el modelo
+    best_label: Optional[str]                   # Día + Franja propuesta

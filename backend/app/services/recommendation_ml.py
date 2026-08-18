@@ -22,46 +22,28 @@ from services.recommendation_strategy import RecommendationStrategy
 
 # --- Umbrales del modelo ----------------------------------------------------
 
-# Filas mínimas para entrenar. Por debajo de esto el árbol memorizaría el histórico en vez
-# de aprender de él, así que se prefiere no entrenar.
-MIN_TRAINING_SESSIONS = 20
-
-# Profundidad del árbol. NO es un valor a optimizar: un árbol de 3 niveles se puede leer de
-# un vistazo, y eso es justo lo que pide RNF06 (explicabilidad). Un modelo opaco que acertara
-# un poco más sería peor para un sistema de APOYO A LA DECISIÓN.
-MAX_DEPTH = 3
-
-# Hojas con menos sesiones que esto no se crean: evita ramas que describen un solo día suelto.
-MIN_SAMPLES_LEAF = 5
-
-# La semilla fija NO es cosmética: los mensajes se deduplican por (usuario, título, día), así
-# que un modelo no determinista generaría duplicados cada vez que se abre el dashboard.
-RANDOM_STATE = 42
-
-# Por debajo de esta probabilidad se considera que el hábito está en riesgo.
-RISK_PROBABILITY = 0.5
-
-# Pendientes entre -EPSILON y +EPSILON se consideran planas. La pendiente está en
-# "cumplimiento por día", así que 0.005 equivale a unos 15 puntos porcentuales al mes: por
-# debajo de eso el movimiento es ruido y no merece cambiarle el diagnóstico a un hábito.
-TREND_EPSILON = 0.005
-
-# Variables de entrada del modelo. El orden importa: es el de las columnas del DataFrame.
-FEATURES = ["slot", "weekday", "importance", "duration"]
-
+MIN_TRAINING_SESSIONS = 20      # Sesiones mínimas para entrenar
+MAX_DEPTH = 3                   # Profundidad máxima del árbol
+MIN_SAMPLES_LEAF = 5            # Mínimo mínmo de sesiones por hojas
+RANDOM_STATE = 42               # Semilla de aleatoriedad para que siempre se generen los mismos
+                                # mensajes y no se generen otros nuevos ligeramente distintos
+RISK_PROBABILITY = 0.5          # Probabilidad para considerar a un hábito en riesgo
+TREND_EPSILON = 0.005           # Margen para considerar a una pendiente plana. Es un 15% al mes 
+                                # (0.005*30) porque las pendientes están en cumplimiento día
+FEATURES = ["slot", "weekday", "importance", "duration"]    # Variables del modelo
 WEEKDAY_LABELS = [
     "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
 ]
 
-# --- Estados de un hábito (RF16) --------------------------------------------
+# --- Estados de un hábito ---------------------------------------------------
 
-STATE_ABANDONED = "abandoned"       # lleva demasiado sin cumplirse
-STATE_AT_RISK = "at_risk"           # poca probabilidad de cumplirse, o cayendo
-STATE_IMPROVING = "improving"       # todavía flojo, pero remontando
-STATE_ON_TRACK = "on_track"         # va bien
-STATE_UNKNOWN = "unknown"           # sin datos para diagnosticarlo
+STATE_ABANDONED = "abandoned"       # >14 días sin cumplirse
+STATE_AT_RISK = "at_risk"           # <50% cumplimiento y con pendiente negativa
+STATE_IMPROVING = "improving"       # <50% cumplimiento y con pendiente positiva
+STATE_ON_TRACK = "on_track"         # >50% cumplimiento y con pendiente no negativa
+STATE_UNKNOWN = "unknown"           # sin datos
 
-# De más grave a menos. Decide sobre qué hábito se escribe la recomendación del día.
+# Importancia para generar la recomendación
 STATE_SEVERITY = {
     STATE_ABANDONED: 0,
     STATE_AT_RISK: 1,
@@ -69,25 +51,20 @@ STATE_SEVERITY = {
     STATE_ON_TRACK: 3,
 }
 
-
 # 0.75 -> "75%"
 def _percent(rate: float) -> str:
     return f"{round(rate * 100)}%"
 
 
-# "Saturday morning". Une las etiquetas de día y de franja; las de franja se importan de los
-# schemas para que Estadísticas y el modelo nombren las franjas igual.
-#
-# Con weekday=None devuelve solo la franja ("the morning slot"), para cuando el modelo no
-# distingue entre días: nombrar uno concreto daría a entender un patrón que no ha aprendido.
+# Une las etiquetas de día y de franja, si no hay día, devuelve solo la franja.
 def combination_label(slot: int, weekday: Optional[int]) -> str:
     if weekday is None:
         return f"the {SLOT_LABELS[slot].lower()} slot"
     return f"{WEEKDAY_LABELS[weekday]} {SLOT_LABELS[slot].lower()}"
 
 
-# Valor más repetido de una lista. Empates: gana el menor, para que el resultado no dependa
-# del orden en que lleguen las sesiones.
+# Calcula la moda de una lista. En caso de empate escoge el valor más pequeño,
+# para no dejar nada al azar.
 def _mode(values: list) -> int:
     counts = Counter(values)
     return min(counts, key=lambda value: (-counts[value], value))
@@ -95,10 +72,8 @@ def _mode(values: list) -> int:
 
 # --- Entrenamiento ----------------------------------------------------------
 
-# Aplana las sesiones de TODOS los hábitos en una tabla: una fila por sesión.
-#
-# El modelo es uno por USUARIO, no uno por hábito: con ~25 sesiones por hábito no habría nada
-# que aprender. La diferencia entre hábitos entra en el modelo como la variable 'importance'.
+# Escribe todas las sesiones de TODOS los hábitos en un DataFrame con una fila por sesión. 
+# No se agrupan por hábitos, sino por la importancia de este.
 def training_frame(contexts: list[HabitContext]) -> pd.DataFrame:
     records = [
         {
@@ -114,14 +89,10 @@ def training_frame(contexts: list[HabitContext]) -> pd.DataFrame:
     return pd.DataFrame.from_records(records, columns=FEATURES + ["completed"])
 
 
-# Entrena el árbol con el histórico del usuario. Devuelve None cuando no se puede entrenar,
-# y entonces quien llama debe recaer en las reglas.
-#
-# Son dos los casos en los que no se entrena:
-#   1. Pocas sesiones (arranque en frío).
-#   2. Todas las sesiones con el mismo 'completed'. Este caso es normal (un hábito que el
-#      usuario siempre cumple) y hay que cortarlo aquí: con una sola clase, predict_proba
-#      devuelve UNA columna en vez de dos y leer la segunda reventaría con IndexError.
+# Crea un árbol de decisión, lo entrena con las columnas FEATURES del DataFrame
+# para la variable objetivo "completed" y devuelve el árbol entrenado.
+# En caso de que no pueda entrenar (pocas sesiones ó todas las sesiones con el mismo 
+# valor en la columna completed), devuelve None.
 def train_tree(contexts: list[HabitContext]) -> Optional[DecisionTreeClassifier]:
     df = training_frame(contexts)
     if len(df) < MIN_TRAINING_SESSIONS or df["completed"].nunique() < 2:
@@ -129,9 +100,7 @@ def train_tree(contexts: list[HabitContext]) -> Optional[DecisionTreeClassifier]
     return new_tree().fit(df[FEATURES], df["completed"])
 
 
-# Árbol SIN entrenar con los hiperparámetros del proyecto. Existe para que la evaluación
-# (validación cruzada) mida exactamente el mismo modelo que se usa en producción: si los
-# hiperparámetros vivieran en dos sitios, la métrica publicada podría no corresponder.
+# Árbol SIN entrenar con los hiperparámetros del proyecto.
 def new_tree() -> DecisionTreeClassifier:
     return DecisionTreeClassifier(
         max_depth=MAX_DEPTH,
@@ -140,30 +109,27 @@ def new_tree() -> DecisionTreeClassifier:
     )
 
 
-# Tendencia del hábito: pendiente de la recta que mejor ajusta (día -> cumplida).
-# Positiva = el usuario cumple cada vez más; negativa = lo está dejando.
-# Con sesiones de un solo día no hay recta que ajustar, así que se considera plana.
+# Tendencia del hábito: pendiente de la regresión.
+# Positiva = cada vez cumple más; negativa = lo está dejando.
+# Con sesiones de un solo día se considera plana.
 def trend(sessions: list[SessionFeature]) -> float:
+    # Extrae el day_index de todas las sesiones y elimina los duplicados,
+    # si todas ocurrieron en un mismo día, se considera plana.
     if len({session.day_index for session in sessions}) < 2:
         return 0.0
 
     days = np.array([[session.day_index] for session in sessions], dtype=float)
     completed = np.array([int(session.completed) for session in sessions], dtype=float)
+    # Extrae la pendiente de la variable days
     return float(LinearRegression().fit(days, completed).coef_[0])
 
 
 # --- Predicción -------------------------------------------------------------
 
-# P(cumplir) para una lista de combinaciones (franja, día) de un mismo hábito.
-#
-# No se usa predict_proba: se leen los conteos de la hoja en la que cae cada combinación y se
-# les aplica LAPLACE, (cumplidas + 1) / (sesiones + 2), el mismo suavizado que la capa de
-# datos aplica por franja horaria. Un criterio único en toda la aplicación.
-#
-# El motivo es que un árbol devuelve la proporción cruda de la hoja: una hoja de 5 sesiones
-# todas cumplidas daría "100% de probabilidad", una certeza que 5 sesiones no sostienen.
-# Con Laplace esa misma hoja dice 86%, que es lo que de verdad respaldan los datos.
+# Devuelve el Array con la p(cumplir) para una lista de combinaciones (franja, día) de un mismo hábito.
 def _predict(tree, combinations: list, importance: int, duration: float) -> np.ndarray:
+    # Crea un DataFrame con todas las combinaciones entre slot y weekday con
+    # importance y duration dadas por los parámetros
     frame = pd.DataFrame(
         [
             {"slot": slot, "weekday": weekday, "importance": importance, "duration": duration}
@@ -172,52 +138,47 @@ def _predict(tree, combinations: list, importance: int, duration: float) -> np.n
         columns=FEATURES,
     )
 
+    # Obtiene el id numérico del nodo hoja en el que termina cada fila del DF
     leaves = tree.apply(frame)
-    # tree_.value guarda PROPORCIONES por clase y n_node_samples el tamaño de la hoja;
-    # multiplicando se recuperan los conteos. La columna 1 es la clase "cumplida".
+
+    # Array con el nº total de sesiones de cada nodo hoja
     sessions = tree.tree_.n_node_samples[leaves]
+    # Array con el nº total de sesiones de cada nodo hoja completadas.
+    # leaves: qué nodos mirar, coger el output en la posición 0 (completed) que 
+    # haya sido completado (1 true)
     completed = np.rint(tree.tree_.value[leaves, 0, 1] * sessions)
+    # Se aplica el suavizado de Laplace
     return (completed + 1) / (sessions + 2)
 
 
-# Barre las combinaciones (franja, día) y devuelve la que mayor probabilidad obtiene.
-#
-# ESTE es el valor que las reglas no pueden dar: las reglas solo saben elegir entre las
-# franjas que el usuario ya ha probado PARA ESE HÁBITO, mientras que el árbol puntúa también
-# combinaciones nuevas, porque ha aprendido el efecto de cada variable por separado.
-#
-# Ahora bien, solo se barren las franjas y los días que el usuario usa en ALGÚN momento de su
-# histórico. Sin ese filtro el árbol propondría de madrugada con toda la confianza del mundo:
-# como no hay ni una sesión que lo contradiga, esa región hereda la probabilidad de la hoja
-# vecina. Proponer un horario que el usuario no pisa nunca no es descubrir un patrón, es
-# rellenar un hueco.
-#
-# argmax devuelve el PRIMER máximo y las combinaciones se generan siempre en el mismo orden,
-# así que ante un empate sale siempre la misma: el título del mensaje no baila.
+# Devuelve la mayor probabilidad y su combinación
+# Solo se usan las franjas y los días que el usuario haya usado en algún momento.
 def _best_combination(tree, importance: int, duration: float, observed: tuple) -> tuple:
     slots, weekdays = observed
+    # Producto cartesiano de los slots y los weekday
     combinations = [(slot, weekday) for slot in slots for weekday in weekdays]
 
     probabilities = _predict(tree, combinations, importance, duration)
     best = int(np.argmax(probabilities))
     best_slot, best_weekday = combinations[best]
 
-    # ¿El árbol distingue de verdad entre días dentro de esa franja? Si todos puntúan igual
-    # es que no ha llegado a partir por 'weekday', y entonces se propone la franja a secas.
-    # Decir "el lunes" cuando el modelo no sabe nada del lunes sería inventarse el motivo.
+    # Obtiene las probabilidades de cumplimiento de la mejor franja sin duplicados,
+    # emparejando la combination con su probabilidad.
     same_slot = {
         probability
         for (slot, _), probability in zip(combinations, probabilities)
         if slot == best_slot
     }
+    # Si es 1 significa que la probabilidad es la misma en todos los slots de los días
+    # (eliminaba duplicados)
     if len(same_slot) == 1:
         best_weekday = None
 
     return best_slot, best_weekday, float(probabilities[best])
 
 
-# Franjas y días que el usuario ha usado alguna vez, en cualquiera de sus hábitos.
-# Si no hubiera ninguna (no debería, porque entonces no habría modelo), se abre todo.
+# Devuelve los índices de las franjas y días que el usuario ha usado alguna vez.
+# Si no hubiera ninguna asmue que puede usar todos.
 def observed_combinations(contexts: list[HabitContext]) -> tuple:
     slots = sorted({session.slot for context in contexts for session in context.sessions})
     weekdays = sorted({session.weekday for context in contexts for session in context.sessions})
@@ -227,8 +188,7 @@ def observed_combinations(contexts: list[HabitContext]) -> tuple:
     )
 
 
-# Traduce la pendiente a algo que se pueda leer en pantalla, usando el MISMO umbral que la
-# clasificación: así el texto nunca dice "estable" de algo que el estado considera en caída.
+# Traduce la pendiente a texto, usando el MISMO umbral que la clasificación.
 def _trend_label(slope: float) -> str:
     if slope > TREND_EPSILON:
         return "Trending up"
@@ -237,47 +197,31 @@ def _trend_label(slope: float) -> str:
     return "Steady"
 
 
-# Clasifica el hábito cruzando las dos señales: lo que predice el árbol (dónde está) y la
-# pendiente de la tendencia (hacia dónde va). Es la "clasificación del estado" que pide RF16.
-#
-# Manda la probabilidad y la tendencia matiza, no al revés. Si la tendencia mandara, una
-# pendiente de -0.003 (ruido) bastaría para marcar "en riesgo" un hábito que el modelo da por
-# cumplido, y saldría un mensaje que se contradice a sí mismo.
+# Clasifica el hábito en función de lo que predice el árbol (dónde está) y la tendencia (hacia dónde va)
 def _classify(context: HabitContext, probability: float, slope: float) -> str:
     days_idle = context.days_since_last_completed
     if days_idle is None or days_idle >= FORGOTTEN_DAYS:
         return STATE_ABANDONED
 
     if probability < RISK_PROBABILITY:
-        # Flojo. Solo se le concede "mejorando" si está remontando de forma apreciable.
         return STATE_IMPROVING if slope > TREND_EPSILON else STATE_AT_RISK
 
-    # Va bien, pero si además está cayendo con claridad conviene avisar antes de que se tuerza.
     return STATE_AT_RISK if slope < -TREND_EPSILON else STATE_ON_TRACK
 
 
 # --- Estrategia -------------------------------------------------------------
 
-# Estrategia de recomendación basada en MODELOS LIGEROS (RF16).
-#
-# No sustituye a las reglas: las COMPONE. Reemplaza únicamente el mensaje de tipo
-# 'recommendation' (el consejo del día) y delega en ellas los avisos de hábito olvidado y de
-# racha, que son RF15 y se perderían si se cambiara una estrategia por la otra sin más.
-#
-# Sigue siendo una estrategia PURA: recibe números y devuelve textos, sin saber que existen
-# la base de datos ni FastAPI.
+# No sustituye a las reglas: Reemplaza únicamente la recomendación (el consejo del día)
+# y delega en ellas los avisos de hábito olvidado y de racha.
 class MLRecommendationStrategy(RecommendationStrategy):
 
-    # La estrategia de reglas entra por el constructor porque cumple dos papeles: es el plan
-    # B cuando no hay datos para entrenar y es quien sigue redactando las notificaciones.
     def __init__(self, fallback: RulesRecommendationStrategy):
         self.fallback = fallback
 
     def generate(self, contexts: list[HabitContext]) -> list[Recommendation]:
         tree = train_tree(contexts)
 
-        # Arranque en frío: sin histórico suficiente el sistema NO improvisa, responde con
-        # las reglas, que sí saben trabajar con pocos datos.
+        # Si no hay suficientes sesiones, responde con las reglas
         if tree is None:
             return self.fallback.generate(contexts)
 
@@ -294,7 +238,7 @@ class MLRecommendationStrategy(RecommendationStrategy):
         recommendations.extend(self.fallback.streak_notifications(contexts))
         return recommendations
 
-    # Diagnóstico de todos los hábitos. Público porque lo consume también el endpoint
+    # Diagnóstico de todos los hábitos. Esta parte es pública porque lo consume también el endpoint
     # GET /recommendations/insights y la gráfica del árbol.
     def insights(self, contexts: list[HabitContext], tree=None) -> list[HabitInsight]:
         tree = tree if tree is not None else train_tree(contexts)
@@ -304,8 +248,7 @@ class MLRecommendationStrategy(RecommendationStrategy):
     # --- Interior -----------------------------------------------------------
 
     def _insight(self, context: HabitContext, tree, observed: tuple) -> HabitInsight:
-        # Sin modelo o sin sesiones no hay nada que predecir: se dice "unknown" en vez de
-        # rellenar con ceros, que se leerían como "tienes un 0% de cumplirlo".
+        # Sin modelo o sin sesiones no hay nada que predecir devuelve "unknown"
         if tree is None or not context.sessions:
             return HabitInsight(
                 habit_id=context.habit_id,
@@ -321,13 +264,11 @@ class MLRecommendationStrategy(RecommendationStrategy):
                 best_label=None,
             )
 
-        # Cómo programa HOY el hábito: su franja y su día habituales.
+        # Obtiene el slot y el día de la semana más habituales (la moda)
         slot = _mode([session.slot for session in context.sessions])
         weekday = _mode([session.weekday for session in context.sessions])
 
-        # 'duration' es continua, así que el barrido de combinaciones necesita fijarle un
-        # valor; se usa la MEDIANA del hábito, es decir, su sesión típica. Es una suposición
-        # explícita: comparamos horarios a igualdad de duración.
+       # Como duration es continua, para simplificar se usa la MEDIANA del hábito.
         duration = float(np.median([session.duration for session in context.sessions]))
 
         probability = float(_predict(tree, [(slot, weekday)], context.importance, duration)[0])
@@ -373,15 +314,12 @@ class MLRecommendationStrategy(RecommendationStrategy):
             ),
         )
 
-    # Redacta el consejo del día a partir del estado. Cada estado tiene su acción correctiva;
-    # el texto cita siempre el dato que la justifica, que es lo que exige RNF06.
+    # Redacta el consejo del día a partir del estado. Cada estado tiene su acción correctiva
     @staticmethod
     def _message(insight: HabitInsight, context: HabitContext) -> Recommendation:
         name = insight.habit_name
 
-        # A veces la mejor combinación que encuentra el modelo es la que el usuario ya usa.
-        # Presentarla como "prueba a hacer X" sería absurdo, porque X es lo que hace: en ese
-        # caso se le dice que el horario no es el problema.
+        # Cuando el usuario ya está usando la mejor combinación que encuentra el modelo
         if insight.best_label == insight.current_label:
             proposal = (
                 f"That is already the best time the model can find for it, so the schedule "
@@ -399,11 +337,10 @@ class MLRecommendationStrategy(RecommendationStrategy):
             title = f"Restart {name}"
             content = f"You have not completed a {name} session {when}. {proposal}"
 
+        # Un estado en riesgo puede ser un estado con la probabilidad baja, 
+        # o con probabilidad alta con tendencia bajando, cada uno tiene que tener su explicación.
         elif insight.state == STATE_AT_RISK:
             title = f"{name} is at risk"
-            # Se llega a "en riesgo" por dos caminos distintos y cada uno pide su explicación:
-            # o la probabilidad es baja, o es alta pero está cayendo. Un texto único acabaría
-            # diciendo algo tan raro como "tienes un 90% y vas mal".
             if insight.probability < RISK_PROBABILITY:
                 content = (
                     f"Scheduling {name} on {insight.current_label}, as you usually do, gives "

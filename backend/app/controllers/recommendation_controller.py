@@ -17,12 +17,8 @@ from schemas.recommendation_schema import HabitInsight
 
 # DEPENDENCIAS
 
-# ÚNICO punto del backend donde se nombra la estrategia concreta: cambiar de estrategia
-# (p. ej. a una basada en otro modelo) es cambiar esta función y nada más.
-#
-# La estrategia con modelo (RF16) recibe la de reglas como fallback y le da dos usos: es el
-# plan B cuando no hay histórico suficiente para entrenar, y es quien sigue redactando las
-# notificaciones de hábito olvidado y de racha (RF15).
+# ÚNICO punto del backend donde se nombra la estrategia concreta: para cambiar de estrategia
+# solo hace falta cambiar de esta función.
 def build_strategy() -> MLRecommendationStrategy:
     return MLRecommendationStrategy(fallback=RulesRecommendationStrategy())
 
@@ -40,12 +36,10 @@ def get_recommendation_service(db: Session = Depends(get_db)) -> RecommendationS
         strategy=build_strategy(),
     )
 
-
-# Las pantallas del modelo (RF16) necesitan la estrategia suelta, sin el orquestador: no
-# generan mensajes, solo diagnostican. Se tipa como MLRecommendationStrategy a propósito,
-# porque "explicarse" es algo que solo sabe hacer una estrategia con modelo.
+# Dependencia de la estrategia de ML
 def get_ml_strategy() -> MLRecommendationStrategy:
     return build_strategy()
+
 
 # CONTROLLER
 
@@ -53,10 +47,6 @@ recommendation_controller = APIRouter(prefix="/recommendations", tags=["Recommen
 
 
 # Genera las recomendaciones del usuario y devuelve los mensajes de hoy.
-#
-# Es POST y no GET porque escribe en la base de datos, y un GET no debe tener efectos.
-# Lo llama el frontend al abrir el dashboard: es el "el sistema genera al abrir la app" de
-# los requisitos, sin tareas programadas ni scheduler.
 @recommendation_controller.post("/generate", response_model=list[MessageResponse], status_code=status.HTTP_200_OK)
 def generate_recommendations(
     current_user: User = Depends(get_current_user),
@@ -65,11 +55,9 @@ def generate_recommendations(
     return recommendation_service.generate_and_store(current_user.id)
 
 
-# Diagnóstico de cada hábito del usuario: estado, probabilidad y tendencia (RF16).
+# Diagnóstico de cada hábito del usuario: estado, probabilidad y tendencia
 #
-# Es GET porque NO escribe: a diferencia de /generate, aquí solo se mira. Lo consume la
-# pantalla "Model". Sin hábitos devuelve una lista vacía; sin datos para entrenar, todos los
-# hábitos salen con estado "unknown" en lugar de con cifras inventadas.
+# Sin hábitos devuelve una lista vacía; sin datos para entrenar, todos los hábitos salen como "unknown"
 @recommendation_controller.get("/insights", response_model=list[HabitInsight], status_code=status.HTTP_200_OK)
 def get_insights(
     current_user: User = Depends(get_current_user),
@@ -83,7 +71,7 @@ def get_insights(
 # Gráfica PNG del árbol entrenado con el histórico del usuario.
 #
 # Como el resto de gráficas de la app, cuando no hay datos devuelve una imagen con el aviso
-# en lugar de un error: así el frontend pinta siempre lo mismo, sin ramas de error.
+# en lugar de un error.
 @recommendation_controller.get("/tree-chart")
 def get_tree_chart(
     current_user: User = Depends(get_current_user),
