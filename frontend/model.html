@@ -59,9 +59,6 @@
                 <p class="emptyState" id="modelError" hidden></p>
 
                 <div class="statsSplit modelSplit">
-                    <!-- Izquierda: el árbol entrenado con el histórico (PNG del servidor).
-                         Va enlazado a sí mismo para poder abrirlo a tamaño completo: en media
-                         columna el texto de las ramas se queda pequeño. -->
                     <figure class="chartCard">
                         <a id="chartTreeLink" target="_blank" rel="noopener">
                             <img id="chartTree" alt="Decision tree trained on your session history">
@@ -73,7 +70,6 @@
                         </figcaption>
                     </figure>
 
-                    <!-- Derecha: diagnóstico de cada hábito -->
                     <div class="statsPanel" id="insightsPanel">
                         <p class="emptyState" id="insightsEmpty" hidden></p>
                     </div>
@@ -82,7 +78,7 @@
         </div>
     </section>
 
-    <!-- Plantilla de la tarjeta de un hábito; se clona una vez por hábito desde model.js -->
+    <!-- Plantilla de la tarjeta de un hábito, se clona por cada hábito desde model.js -->
     <template id="insightCardTemplate">
         <div class="highlightCard">
             <h4>

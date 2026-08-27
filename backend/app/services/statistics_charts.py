@@ -16,7 +16,7 @@ def to_png(fig: Figure) -> bytes:
     fig.savefig(buffer, format="png", bbox_inches="tight")      # Guarda la figura 
     return buffer.getvalue()                                    # Devuelve un Blob
 
-# Genera un PNG placeholder para cuando no haya datos que graficarcd 
+# Genera un PNG placeholder para cuando no haya datos que graficar
 def empty_png(message: str = "No data for this period") -> bytes:
     fig = Figure(figsize=(6, 3.2), dpi=100)
     ax = fig.subplots()

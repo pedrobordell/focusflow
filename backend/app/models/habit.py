@@ -17,7 +17,6 @@ class Habit(Base):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    # El dominio de 'type' aún no está cerrado -> String flexible (validación futura en Pydantic).
     type: Mapped[str | None] = mapped_column(String(50), nullable=True)
     importance: Mapped[int] = mapped_column(Integer, nullable=False)
 

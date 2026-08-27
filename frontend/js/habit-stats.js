@@ -1,6 +1,6 @@
-// Lógica de Habit Stats: elegido un hábito (selector, preseleccionable con ?habitId=),
-// muestra a la izquierda la gráfica de % por hora del día y a la derecha su detalle
-// (info, % de las últimas 10 sesiones y mejor franja horaria). Reutiliza api.js.
+// Lógica de Habit Stats: elegido un hábito, muestra a la izquierda la gráfica
+// de % por hora del día y a la derecha su detalle (info, % de las últimas 10 
+// sesiones y mejor franja horaria).
 $(document).ready(function () {
 
     // Hace que el script solo pueda ejecutarse en habit-stats.html
@@ -144,7 +144,7 @@ $(document).ready(function () {
             habitSelect.appendChild(opt);
         });
 
-        // Preselección por ?habitId= (desde el icono 📊 de Habit List)
+        // Preselección por ?habitId=
         var preselect = new URLSearchParams(window.location.search).get("habitId");
         if (preselect && habits.some(function (h) { return String(h.id) === preselect; })) {
             habitSelect.value = preselect;

@@ -1,6 +1,6 @@
-// Bandeja de mensajes: recomendaciones y avisos que el sistema genera a partir del histórico.
+// Bandeja de mensajes: recomendaciones y notificaciones que el sistema genera a partir del histórico.
 // Al abrir la pantalla se pide primero una generación (POST /recommendations/generate) y
-// después el listado completo (GET /messages). Reutiliza authFetch de api.js.
+// después el listado completo (GET /messages).
 $(document).ready(function () {
 
     // Solo se ejecuta en messages.html

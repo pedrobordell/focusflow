@@ -1,5 +1,4 @@
-// Lógica de la pantalla Edit session. Reutiliza API_BASE/extractError de api.js y SessionForm
-// (lógica común con add-session) de session-form.js.
+// Lógica de la pantalla Edit session. Reutiliza API_BASE/extractError de api.js y SessionForm de session-form.js.
 $(document).ready(function () {
 
     // Solo corre en la pantalla con el formulario de edición de sesión

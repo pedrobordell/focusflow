@@ -4,8 +4,8 @@
     box-sizing: border-box;
 }
 
-/* ===== Variables de tema ===== */
-:root {                      /* OSCURO (por defecto) */
+/* --- Variables de tema ------------------------------------------------------ */
+:root {                      /* Oscuro es el default */
     --bg: #1a1a1a;
     --text: #ffffff;
     --header-bg: rgba(0, 0, 0, 0.5);
@@ -30,7 +30,7 @@
     --error: #dc2626;
 }
 
-html.light {                 /* CLARO (override) */
+html.light {                 /* Light lo sobreescribe */
     --bg: #ffffff;
     --text: #1a1a1a;
     --header-bg: rgba(255, 255, 255, 0.6);
@@ -705,7 +705,7 @@ input:-webkit-autofill:active {
 /* ===== Perfil ===== */
 .profileGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 24px;
     margin-bottom: 64px;
 }
@@ -714,6 +714,7 @@ input:-webkit-autofill:active {
     border: 1px solid var(--divider);
     border-radius: 8px;
     padding: 24px;
+    text-align: center;
 }
 
 .profileCard h3 {
@@ -1481,9 +1482,6 @@ footer {
     .navigation { flex-wrap: wrap; row-gap: 12px; }
     .menu { width: 100%; justify-content: space-between; gap: 16px; }
     .subsectionNav { flex-wrap: wrap; row-gap: 8px; }
-
-    /* Perfil: las dos tarjetas se apilan. */
-    .profileGrid { grid-template-columns: 1fr; }
 
     /* Dashboard: las dos mitades se apilan (horario arriba, placeholders debajo). */
     .dashboardGrid { grid-template-columns: 1fr; }

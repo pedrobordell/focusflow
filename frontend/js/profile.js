@@ -1,4 +1,4 @@
-// Lógica de la pantalla Perfil. Reutiliza API_BASE y extractError de api.js.
+// Lógica de la pantalla Perfil.
 $(document).ready(function () {
 
     // Solo corre en la pantalla de perfil

@@ -1,8 +1,7 @@
 // Navegación dirigida por configuración para las páginas autenticadas.
-// Nivel 1: secciones (se eligen con la hamburguesa). Nivel 2: subsecciones = pantallas
-// de la sección actual (se muestran en el header). La sección actual se deduce de la página abierta.
+// Secciones con subsecciones. Cada subsección es una pantalla.
 
-// Única fuente de verdad. Para añadir pantallas futuras, ampliar esta estructura.
+// Estructura de las secciones
 const NAV_SECTIONS = [
     {
         id: "user",

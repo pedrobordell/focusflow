@@ -1,5 +1,4 @@
-// Lógica compartida por las pantallas de sesiones (add-session y edit-session).
-// Se expone como objeto global SessionForm. Reutiliza API_BASE de api.js.
+// Lógica compartida por add-session y edit-session.
 window.SessionForm = (function () {
 
     // 401 común: limpia el token y vuelve a login.
@@ -59,8 +58,8 @@ window.SessionForm = (function () {
         });
     }
 
-    // Valida un bloque y devuelve { date, start_time, end_time, repeat_until } o null (avisando).
-    // Las horas/fechas son strings ("HH:MM" / "YYYY-MM-DD"): se comparan lexicográficamente.
+    // Valida un bloque y devuelve { date, start_time, end_time, repeat_until } o null.
+    // Las horas/fechas son strings ("HH:MM" / "YYYY-MM-DD").
     function readBlock(block, index) {
         var date = block.querySelector(".sessionDate").value;
         var start = block.querySelector(".sessionStart").value;

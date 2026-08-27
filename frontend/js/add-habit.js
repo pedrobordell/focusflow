@@ -1,4 +1,3 @@
-// Lógica de la pantalla Add habit.
 $(document).ready(function () {
 
     // Solo corre en la pantalla con el formulario
