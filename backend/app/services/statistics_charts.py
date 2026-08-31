@@ -4,8 +4,9 @@ import matplotlib
 matplotlib.use("Agg")   # backend sin GUI (headless), obligatorio en servidor
 from matplotlib.figure import Figure
 
-_ACCENT = "#4493f8"
-_MUTED = "#999999"
+# Misma paleta que la interfaz: el azul de --accent y un gris de la escala de styles.css.
+_ACCENT = "#3f8ae0"
+_MUTED = "#6b7480"
 
 
 # Convierte una figura en PNG.

@@ -12,19 +12,10 @@ $(document).ready(function () {
     updateTypePlaceholder();
     typeSelect.addEventListener("change", updateTypePlaceholder);
 
-    // Slider de importancia: 1 -> Low, 2 -> Medium, 3 -> High.
-    // Actualiza la etiqueta y el relleno (--range-progress: 0% / 50% / 100%).
-    var IMPORTANCE_LABELS = { 1: "Low", 2: "Medium", 3: "High" };
-    var range = document.getElementById("habitImportance");
-    var valueLabel = document.getElementById("importanceValue");
-
-    function updateImportance() {
-        var v = parseInt(range.value, 10);
-        valueLabel.textContent = IMPORTANCE_LABELS[v];
-        range.style.setProperty("--range-progress", ((v - 1) / 2 * 100) + "%");
+    // Obtener la importancia (1 = Low, 2 = Medium, 3 = High)
+    function selectedImportance() {
+        return parseInt(form.querySelector("input[name='habitImportance']:checked").value, 10);
     }
-    updateImportance();
-    range.addEventListener("input", updateImportance);
 
     // Confirmar: crea el hábito en el backend (POST /habits) y navega a la lista.
     // Reutiliza API_BASE y extractError de api.js.
@@ -48,7 +39,7 @@ $(document).ready(function () {
         var payload = {
             name: name,
             type: typeSelect.value || null,   // "" (placeholder) -> null
-            importance: parseInt(range.value, 10)
+            importance: selectedImportance()
         };
 
         fetch(`${API_BASE}/habits`, {

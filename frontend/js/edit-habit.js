@@ -26,16 +26,10 @@ $(document).ready(function () {
     }
     typeSelect.addEventListener("change", updateTypePlaceholder);
 
-    // Slider de importancia: actualiza la etiqueta (Low/Medium/High) y el relleno
-    var IMPORTANCE_LABELS = { 1: "Low", 2: "Medium", 3: "High" };
-    var range = document.getElementById("habitImportance");
-    var valueLabel = document.getElementById("importanceValue");
-    function updateImportance() {
-        var v = parseInt(range.value, 10);
-        valueLabel.textContent = IMPORTANCE_LABELS[v];
-        range.style.setProperty("--range-progress", ((v - 1) / 2 * 100) + "%");
+    // Obtener la importancia (1 = Low, 2 = Medium, 3 = High)
+    function selectedImportance() {
+        return parseInt(form.querySelector("input[name='habitImportance']:checked").value, 10);
     }
-    range.addEventListener("input", updateImportance);
 
     // Precarga el formulario con los datos actuales del hábito
     fetch(`${API_BASE}/habits/${habitId}`, {
@@ -58,9 +52,12 @@ $(document).ready(function () {
             if (!habit) return;
             document.getElementById("habitName").value = habit.name;
             typeSelect.value = habit.type || "";   // null -> placeholder
-            range.value = habit.importance;
+            // Marca el radio que corresponde a la importancia guardada.
+            var importanceInput = form.querySelector(
+                "input[name='habitImportance'][value='" + habit.importance + "']"
+            );
+            if (importanceInput) importanceInput.checked = true;
             updateTypePlaceholder();
-            updateImportance();
         })
         .catch(function (error) {
             console.error("Error al cargar el hábito:", error);
@@ -79,7 +76,7 @@ $(document).ready(function () {
         var payload = {
             name: name,
             type: typeSelect.value || null,
-            importance: parseInt(range.value, 10)
+            importance: selectedImportance()
         };
 
         fetch(`${API_BASE}/habits/${habitId}`, {

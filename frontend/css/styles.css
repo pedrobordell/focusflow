@@ -4,51 +4,42 @@
     box-sizing: border-box;
 }
 
-/* --- Variables de tema ------------------------------------------------------ */
+/* ===== Variables de tema ===== */
+
+/* Todos los grises salen de una misma escala de 8, del más oscuro al más claro:
+   #0f1216  #191d22  #272d34  #3b434c  #6b7480  #c3cad2  #e4e8ec  #f6f7f9
+   El tema oscuro la recorre en un sentido y el claro en el contrario. */
+
 :root {                      /* Oscuro es el default */
-    --bg: #1a1a1a;
-    --text: #ffffff;
+    --bg: #191d22;
+    --text: #f6f7f9;
+    --muted: #c3cad2;
+    --divider: #272d34;
+    --input-bg: #0f1216;
+    --btn-bg: #3b434c;
+    --btn-bg-hover: #6b7480;
+    --footer-bg: #0f1216;
     --header-bg: rgba(0, 0, 0, 0.5);
-    --header-shadow: grey;
-    --footer-bg: #000000;
-    --footer-text: #dddddd;
-    --muted: #999999;
-    --divider: #333333;
-    --input-bg: #000000;
-    --input-border: #222222;
-    --btn-bg: #444444;
-    --btn-bg-hover: #666666;
-    --btn-text: #ffffff;
-    --menu-link: #ffffff;
-    --menu-link-hover: #dddddd;
-    --register-bg: #ffffff;
-    --register-text: #000000;
-    --register-hover: #dddddd;
-    --accent: #4493f8;
-    --success: #238636;
-    --success-hover: #29903b;
-    --error: #dc2626;
+
+    --accent: #3f8ae0;
+    --accent-soft: rgba(63, 138, 224, 0.06);  /* el mismo azul al 6 %: columna del día actual */
+    --on-color: #f6f7f9;                      /* texto sobre relleno de color; no cambia con el tema */
+    --success: #2b8a5b;
+    --success-hover: #34a06a;
+    --warning: #b5722a;
+    --error: #c9463f;
 }
 
 html.light {                 /* Light lo sobreescribe */
-    --bg: #ffffff;
-    --text: #1a1a1a;
+    --bg: #f6f7f9;
+    --text: #191d22;
+    --muted: #6b7480;
+    --divider: #e4e8ec;
+    --input-bg: #f6f7f9;
+    --btn-bg: #e4e8ec;
+    --btn-bg-hover: #c3cad2;
+    --footer-bg: #e4e8ec;
     --header-bg: rgba(255, 255, 255, 0.6);
-    --header-shadow: #cccccc;
-    --footer-bg: #f2f2f2;
-    --footer-text: #333333;
-    --muted: #666666;
-    --divider: #dddddd;
-    --input-bg: #ffffff;
-    --input-border: #cccccc;
-    --btn-bg: #e2e2e2;
-    --btn-bg-hover: #d0d0d0;
-    --btn-text: #1a1a1a;
-    --menu-link: #1a1a1a;
-    --menu-link-hover: #555555;
-    --register-bg: #1a1a1a;
-    --register-text: #ffffff;
-    --register-hover: #333333;
 }
 
 body {
@@ -65,13 +56,11 @@ section {
     flex: 1;
 }
 
+/* Chrome pinta su propio fondo al autorrellenar un campo; esta sombra interior lo tapa. */
 input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 100px var(--input-bg) inset !important;
     -webkit-text-fill-color: var(--text) !important;
-    border: 1px solid var(--accent);
 }
 
 .mainHeader {
@@ -79,57 +68,55 @@ input:-webkit-autofill:active {
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 1px 3px var(--header-shadow);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     background-color: var(--header-bg);
     backdrop-filter: blur(7px);
 }
 
 .container {
     max-width: 1200px;
-    margin: 0px auto;
-    padding: 0px 24px;
+    margin: 0 auto;
+    padding: 0 24px;
 }
 
+/* La cabecera ocupa todo el ancho de la ventana, no el contenedor de 1200 px, así que
+   lleva su propio margen lateral. */
 .mainHeader .container {
     max-width: none;
-    padding: 0px 128px;
+    padding: 0 128px;
 }
 
 .loginHeader,
 .registerHeader,
 .dashboardHeader {
-    margin: 32px 0px;
+    margin: 32px 0;
     text-align: center;
 }
+
+/* Las tres pantallas públicas comparten caja; el registro empieza más arriba porque su
+   formulario es más largo. */
 .indexContainer,
-.loginContainer {
+.loginContainer,
+.registerContainer {
     max-width: 375px;
-    margin-top: 80px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 24px;
-    padding: 64px 0px 0px 0px;
+    margin: 80px auto 24px;
+    padding: 64px 0 0;
 }
 
 .registerContainer {
-    max-width: 375px;
     margin-top: 40px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 24px;
-    padding: 64px 0px 0px 0px;
 }
 
 .navigation {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 8px 0;
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
     text-decoration: none;
 }
 
@@ -152,7 +139,7 @@ input:-webkit-autofill:active {
 }
 
 .menu a {
-    color: var(--menu-link);
+    color: var(--text);
     text-decoration: none;
     font-size: 15px;
     font-weight: 500;
@@ -161,16 +148,22 @@ input:-webkit-autofill:active {
 }
 
 .menu a:hover {
-    color: var(--menu-link-hover);
+    color: var(--muted);
+}
+
+/* Los tres botones de la cabecera comparten forma; solo cambian de color. */
+.logoutBtn,
+.loginBtn,
+.menu a.registerBtn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
 }
 
 .logoutBtn,
 .loginBtn {
-    color: var(--btn-text);
+    color: var(--text);
     background-color: var(--btn-bg);
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-weight: 600;
 }
 
 .logoutBtn:hover,
@@ -178,45 +171,29 @@ input:-webkit-autofill:active {
     background-color: var(--btn-bg-hover);
 }
 
+/* Register invierte los colores de la página para destacar sobre los demás. */
 .menu a.registerBtn {
-    color: var(--register-text);
-    background-color: var(--register-bg);
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-weight: 600;
+    color: var(--bg);
+    background-color: var(--text);
 }
 
 .menu a.registerBtn:hover {
-    background-color: var(--register-hover);
-}
-
-.themeToggle {
-    background: var(--btn-bg);
-    color: var(--btn-text);
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 16px;
-    line-height: 1;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.themeToggle:hover {
-    background: var(--btn-bg-hover);
+    background-color: var(--muted);
 }
 
 /* ===== Navegación: secciones (hamburguesa) y subsecciones ===== */
 .navLeft {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 20px;
     position: relative;          /* ancla del panel desplegable */
 }
 
+/* Los dos botones de icono de la cabecera (tema y secciones) son el mismo botón. */
+.themeToggle,
 .navToggle {
     background: var(--btn-bg);
-    color: var(--btn-text);
+    color: var(--text);
     border: none;
     border-radius: 8px;
     padding: 8px 12px;
@@ -226,6 +203,7 @@ input:-webkit-autofill:active {
     transition: background-color 0.2s;
 }
 
+.themeToggle:hover,
 .navToggle:hover {
     background: var(--btn-bg-hover);
 }
@@ -248,7 +226,7 @@ input:-webkit-autofill:active {
     display: flex;
     flex-direction: column;
     transform: translateX(-100%); /* oculto fuera de pantalla; el ancho lo pone JS */
-    transition: transform 0.25s ease;
+    transition: transform 0.2s;
 }
 
 .sectionMenu.open {
@@ -325,7 +303,7 @@ input:-webkit-autofill:active {
 .textArea input {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid var(--input-border);
+    border: 2px solid var(--divider);
     border-radius: 8px;
     font-size: 15px;
     transition: border-color 0.2s;
@@ -335,14 +313,36 @@ input:-webkit-autofill:active {
 }
 
 .textArea input:focus {
-    border: 2px solid var(--accent);
+    border-color: var(--accent);
+    outline: none;
+}
+
+/* Los tres desplegables de la aplicación comparten estilo; cada uno ajusta después
+   su ancho y su relleno. */
+.textArea select,
+.profileField select,
+.statsControls select {
+    border: 2px solid var(--divider);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    background-color: var(--input-bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.textArea select:focus,
+.profileField select:focus,
+.statsControls select:focus {
+    border-color: var(--accent);
     outline: none;
 }
 
 /* ===== Dashboard: horario de hoy ===== */
 
-/* Rejilla de dos mitades: horario a la izquierda, placeholders de estadísticas a la derecha.
-   align-items: stretch (por defecto) iguala la altura de ambas columnas. */
+/* Dos mitades: horario a la izquierda, indicadores a la derecha. El 'stretch' por
+   defecto del grid iguala la altura de ambas columnas. */
 .dashboardGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -354,29 +354,29 @@ input:-webkit-autofill:active {
     margin: 0;
 }
 
-/* Columna derecha: dos placeholders apilados uno encima de otro. */
+/* Columna derecha: los dos indicadores, uno encima del otro. */
 .dashboardStats {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
-/* Caja de placeholder (contenido de estadísticas pendiente). flex:1 reparte a
-   partes iguales la altura de la fila (= alto del horario de la izquierda). */
-.statPlaceholder {
+/* Caja de indicador. flex:1 reparte a partes iguales la altura de la fila
+   (= alto del horario de la izquierda). */
+.statBox {
     flex: 1;
     min-height: 160px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
-    border: 2px dashed var(--divider);
+    padding: 20px;
+    border: 1px solid var(--divider);
     border-radius: 8px;
-    color: var(--muted);
+    color: var(--text);
     text-align: center;
 }
 
-.statPlaceholder h3 {
+.statBox h3 {
     font-size: 16px;
     font-weight: 600;
 }
@@ -408,10 +408,6 @@ input:-webkit-autofill:active {
     list-style: none;
 }
 
-.todayItem {
-    margin-bottom: 10px;
-}
-
 .todayLink {
     display: flex;
     align-items: center;
@@ -430,9 +426,9 @@ input:-webkit-autofill:active {
 }
 
 /* Barra izquierda por importancia (1 = baja, 2 = media, 3 = alta) */
-.todayLink.imp1 { border-left-color: #2f9e44; }
-.todayLink.imp2 { border-left-color: #4493f8; }
-.todayLink.imp3 { border-left-color: #e5534b; }
+.todayLink.imp1 { border-left-color: var(--success); }
+.todayLink.imp2 { border-left-color: var(--accent); }
+.todayLink.imp3 { border-left-color: var(--error); }
 
 .todayTime {
     font-weight: 600;
@@ -456,7 +452,7 @@ input:-webkit-autofill:active {
 .weekNavBtn,
 .weekTodayBtn {
     background: var(--btn-bg);
-    color: var(--btn-text);
+    color: var(--text);
     border: none;
     border-radius: 8px;
     padding: 8px 14px;
@@ -556,7 +552,7 @@ input:-webkit-autofill:active {
 }
 
 .dayCol.isToday {
-    background-color: rgba(68, 147, 248, 0.06);
+    background-color: var(--accent-soft);
 }
 
 /* Cada sesión es un "chip" posicionado por hora (top/height los fija el JS) */
@@ -570,11 +566,10 @@ input:-webkit-autofill:active {
     padding: 3px 6px;
     border-radius: 6px;
     overflow: hidden;
-    color: #ffffff;
+    color: var(--on-color);
     text-decoration: none;
     font-size: 12px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    transition: filter 0.15s;
 }
 
 .evtTime {
@@ -615,7 +610,7 @@ input:-webkit-autofill:active {
     cursor: pointer;
     text-decoration: none;
     border-radius: 4px;
-    transition: transform 0.1s;
+    transition: transform 0.2s;
 }
 
 .evtBtn:hover {
@@ -636,8 +631,8 @@ input:-webkit-autofill:active {
 
 .evtCompact .evtType { display: none; }
 
-/* Las acciones dejan de ocupar fila propia y se anclan a la esquina.
-   El fondo propio evita que las acciones se sobrepongan al nombre del chip */
+/* Las acciones se anclan a la esquina, con fondo propio para no montarse sobre el nombre,
+   y solo aparecen al pasar el puntero por encima del chip. */
 .evtCompact .evtActions {
     position: absolute;
     right: 4px;
@@ -646,18 +641,17 @@ input:-webkit-autofill:active {
     background-color: inherit;
     border-radius: 4px;
     padding: 0 2px;
+    display: none;
 }
 
-/* Solo se ocultan donde hay puntero: en táctil no hay hover y serían inalcanzables */
-@media (hover: hover) {
-    .evtCompact .evtActions { display: none; }
-    .evtCompact:hover .evtActions { display: flex; }
+.evtCompact:hover .evtActions {
+    display: flex;
 }
 
 /* Color del chip por importancia del hábito */
-.evt.imp1 { background: #2f9e44; }
-.evt.imp2 { background: #4493f8; }
-.evt.imp3 { background: #e5534b; }
+.evt.imp1 { background: var(--success); }
+.evt.imp2 { background: var(--accent); }
+.evt.imp3 { background: var(--error); }
 
 .errorMsg {
     color: var(--error);
@@ -669,27 +663,21 @@ input:-webkit-autofill:active {
 .submitBtn {
     width: 100%;
     background: var(--success);
-    color: white;
+    color: var(--on-color);
     padding: 16px;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: background-color 0.2s;
 }
 
 .submitBtn:hover {
     background-color: var(--success-hover);
 }
 
-.alternativeLink {
-    text-align: center;
-    margin-bottom: 24px;
-    color: var(--text);
-    font-size: 14px;
-}
-
+.alternativeLink,
 .alternativeLinkRegister {
     text-align: center;
     margin-bottom: 24px;
@@ -697,9 +685,9 @@ input:-webkit-autofill:active {
     font-size: 14px;
 }
 
-.alternativeLinkRegister a,
-.alternativeLink a {
-    color: var(--accent)
+.alternativeLink a,
+.alternativeLinkRegister a {
+    color: var(--accent);
 }
 
 /* ===== Perfil ===== */
@@ -744,19 +732,6 @@ input:-webkit-autofill:active {
     width: auto;
     min-width: 140px;
     padding: 10px 12px;
-    border: 2px solid var(--input-border);
-    border-radius: 8px;
-    font-size: 15px;
-    transition: border-color 0.2s;
-    font-family: inherit;
-    background-color: var(--input-bg);
-    color: var(--text);
-    cursor: pointer;
-}
-
-.profileField select:focus {
-    border: 2px solid var(--accent);
-    outline: none;
 }
 
 .emptyState {
@@ -773,19 +748,6 @@ input:-webkit-autofill:active {
 .textArea select {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid var(--input-border);
-    border-radius: 8px;
-    font-size: 15px;
-    transition: border-color 0.2s;
-    font-family: inherit;
-    background-color: var(--input-bg);
-    color: var(--text);
-    cursor: pointer;
-}
-
-.textArea select:focus {
-    border: 2px solid var(--accent);
-    outline: none;
 }
 
 /* El placeholder "-- Select a category --" se muestra más apagado (lo activa el JS) */
@@ -793,61 +755,57 @@ input:-webkit-autofill:active {
     color: var(--muted);
 }
 
-.rangeRow {
+/* Selector de importancia: grupo de radios nativo (fieldset + legend) */
+.segmentedField {
+    border: none;
+    min-width: 0;
+}
+
+/* La leyenda hace de etiqueta del grupo */
+.segmentedField legend {
+    color: var(--text);
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.segmented {
     display: flex;
-    align-items: center;
     gap: 16px;
 }
 
-/* Slider personalizado: el relleno lo controla --range-progress (lo fija el JS),
-   así llega al 0% en Low y al 100% en High, independiente del ancho del pulgar. */
-.rangeRow input[type="range"] {
+/* El radio real se oculta pero sigue siendo seleccionable */
+.segmented input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.segmented label {
     flex: 1;
-    -webkit-appearance: none;
-    appearance: none;
-    background: transparent;
-    height: 18px;            /* alto suficiente para el pulgar */
+    margin-bottom: 0;
+    padding: 12px;
+    text-align: center;
+    border: 2px solid var(--divider);
+    border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
-.rangeRow input[type="range"]::-webkit-slider-runnable-track {
-    height: 6px;
-    border-radius: 999px;
-    background: linear-gradient(to right,
-        var(--accent) var(--range-progress, 50%),
-        var(--input-border) var(--range-progress, 50%));
+.segmented label:hover {
+    border-color: var(--accent);
 }
 
-.rangeRow input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    margin-top: -6px;        /* centra el pulgar sobre la pista de 6px */
-    border-radius: 50%;
+.segmented input:checked + label {
     background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-color);
 }
 
-.rangeRow input[type="range"]::-moz-range-track {
-    height: 6px;
-    border-radius: 999px;
-    background: linear-gradient(to right,
-        var(--accent) var(--range-progress, 50%),
-        var(--input-border) var(--range-progress, 50%));
-}
-
-.rangeRow input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border: none;
-    border-radius: 50%;
-    background: var(--accent);
-}
-
-.rangeValue {
-    min-width: 64px;
-    font-weight: 600;
-    color: var(--text);
+/* El anillo de foco se pinta sobre la etiqueta */
+.segmented input:focus-visible + label {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .formActions {
@@ -863,14 +821,14 @@ input:-webkit-autofill:active {
 .cancelBtn {
     flex: 1;
     background: var(--btn-bg);
-    color: var(--btn-text);
+    color: var(--text);
     padding: 16px;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
 }
 
 .cancelBtn:hover {
@@ -918,14 +876,14 @@ input:-webkit-autofill:active {
 .recurrenceToggle {
     background: transparent;
     color: var(--text);
-    border: 2px solid var(--input-border);
+    border: 2px solid var(--divider);
     border-radius: 8px;
     padding: 10px 14px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
 .recurrenceToggle:hover {
@@ -935,7 +893,7 @@ input:-webkit-autofill:active {
 .recurrenceToggle[aria-pressed="true"] {
     background: var(--accent);
     border-color: var(--accent);
-    color: white;
+    color: var(--on-color);
 }
 
 .recurrenceLimit {
@@ -964,7 +922,7 @@ input:-webkit-autofill:active {
 .addSessionBtn {
     width: 100%;
     background: var(--btn-bg);
-    color: var(--btn-text);
+    color: var(--text);
     padding: 14px;
     border: none;
     border-radius: 8px;
@@ -973,7 +931,7 @@ input:-webkit-autofill:active {
     cursor: pointer;
     margin-bottom: 16px;
     font-family: inherit;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
 }
 
 .addSessionBtn:hover {
@@ -1029,7 +987,7 @@ input:-webkit-autofill:active {
     cursor: pointer;
     text-decoration: none;
     border-radius: 6px;
-    transition: transform 0.1s, background-color 0.2s;
+    transition: transform 0.2s, background-color 0.2s;
 }
 
 .iconLink:hover,
@@ -1053,6 +1011,7 @@ input:-webkit-autofill:active {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 10px;
 }
 
 .todayItem .todayLink {
@@ -1086,35 +1045,14 @@ input:-webkit-autofill:active {
 .statsControls select {
     min-width: 160px;
     padding: 10px 12px;
-    border: 2px solid var(--input-border);
-    border-radius: 8px;
-    font-size: 15px;
-    font-family: inherit;
-    background-color: var(--input-bg);
-    color: var(--text);
-    cursor: pointer;
 }
 
-.statsControls select:focus {
-    border: 2px solid var(--accent);
-    outline: none;
-}
-
-.statCard {
-    border: 1px solid var(--divider);
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-}
-
-/* Panel dividido de las pantallas de estadísticas: gráfica (izq) + datos (der). */
+/* Panel dividido de las pantallas de estadísticas: gráfica (izq) + datos (der). Sin
+   'align-items': el 'stretch' por defecto es lo que iguala la altura de las dos columnas. */
 .statsSplit {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
-    /* Sin 'align-items' a propósito: el valor por defecto del grid es 'stretch', y es lo que
-       hace que las dos columnas acaben a la misma altura (la de la más alta). Con 'start'
-       cada una medía lo que su contenido y el panel se veía descuadrado. */
 }
 
 /* Columna derecha: tarjetas apiladas verticalmente. */
@@ -1131,12 +1069,8 @@ input:-webkit-autofill:active {
     padding: 20px;
 }
 
-/* Cuando la gráfica es más alta que el panel, .statsPanel se estira (lo hace .statsSplit) pero
-   sus tarjetas se quedaban a su alto natural y el sobrante se veía como un vacío bajo la última.
-   Con flex-grow reparten ese espacio entre todas.
-   'flex-basis: auto' y 'flex-shrink: 0' son deliberados: el reparto se suma a la altura que pide
-   el contenido en vez de sustituirla, así una tarjeta con más texto (las de la pantalla Model)
-   nunca se comprime por debajo de lo que necesita. */
+/* Reparte entre las tarjetas el hueco sobrante cuando la gráfica es el lado más alto.
+   El 'auto' y el '0' son deliberados: ninguna tarjeta se comprime por debajo de su contenido. */
 .statsPanel .highlightCard {
     flex: 1 0 auto;
 }
@@ -1162,15 +1096,12 @@ input:-webkit-autofill:active {
 }
 
 /* Signo de la mejora semanal respecto a la anterior. */
-.deltaUp { color: #2e9e5b; }
-.deltaDown { color: #d9534f; }
+.deltaUp { color: var(--success); }
+.deltaDown { color: var(--error); }
 
-/* Cada gráfica es un PNG (fondo blanco generado por Matplotlib) enmarcado.
-   Es contenedor flex para centrar el PNG cuando la tarjeta se estira por encima de su alto
-   natural (ver .statsSplit). El PNG se deja a su tamaño nativo en vez de escalarlo: ampliar
-   una imagen de resolución fija emborronaría el texto de los ejes. El aire que queda es
-   blanco, igual que el fondo del PNG y el de la tarjeta, así que no se nota.
-   'column' es necesario para que el <figcaption> de la pantalla Model siga bajo la imagen. */
+/* Cada gráfica es un PNG de fondo blanco enmarcado. Se centra y se deja a tamaño nativo:
+   ampliarlo emborronaría el texto de los ejes. 'column' mantiene el pie bajo la imagen. */
+
 .chartCard {
     border: 1px solid var(--divider);
     border-radius: 8px;
@@ -1188,9 +1119,8 @@ input:-webkit-autofill:active {
     height: auto;
 }
 
-/* En la pantalla Model el <img> va envuelto en un <a> para poder abrirlo a tamaño completo.
-   Como elemento flex, el ancla se dimensionaría por su contenido y el max-width del <img>
-   dejaría de resolverse contra el ancho de la tarjeta: el PNG del árbol (1200 px) desbordaría. */
+/* El ancla del árbol (pantalla Model): sin 'block' y 'max-width', el PNG de 1200 px desbordaría. */
+
 .chartCard a {
     display: block;
     max-width: 100%;
@@ -1201,21 +1131,17 @@ input:-webkit-autofill:active {
 /* El árbol es una imagen ancha: se le da más sitio que al panel de diagnóstico. */
 .modelSplit { grid-template-columns: 3fr 2fr; }
 
-/* Pie de la gráfica del árbol. Recoge la explicación de qué aprende el modelo, que antes vivía en
-   un párrafo suelto sobre la rejilla: pegada a la imagen se lee mejor y la pantalla queda como las
-   demás (título -> contenido, sin introducción).
-   El max-width evita que el texto se estire a lo ancho, porque esta es la tarjeta más ancha de la
-   app (.modelSplit le da 3fr). Solo la usa model.html. */
+/* Pie de la gráfica del árbol (solo model.html): explica qué aprende el modelo. El max-width
+   evita que el texto se estire, porque es la tarjeta más ancha de la aplicación. */
 .chartHint {
     margin-top: 8px;
     max-width: 60ch;
     text-align: center;
     font-size: 12px;
     line-height: 1.5;
-    color: #666666;     /* fijo: la tarjeta de gráfica tiene fondo blanco en ambos temas */
+    color: #3b434c;     /* gris fijo de la escala: la tarjeta de gráfica es blanca en ambos temas */
 }
 
-/* El nombre del hábito manda en la tarjeta, así que no hereda el gris de .highlightCard h4. */
 .insightHabit {
     font-size: 14px;
     color: var(--text);
@@ -1233,20 +1159,14 @@ input:-webkit-autofill:active {
     text-transform: uppercase;
     letter-spacing: 0.03em;
     vertical-align: middle;
-    color: #ffffff;
+    color: var(--on-color);
 }
 
-.stateAbandoned { background-color: #d9534f; }
-.stateAtRisk    { background-color: #d9822b; }
+.stateAbandoned { background-color: var(--error); }
+.stateAtRisk    { background-color: var(--warning); }
 .stateImproving { background-color: var(--accent); }
-.stateOnTrack   { background-color: #2e9e5b; }
-.stateUnknown   { background-color: #777777; }
-
-/* Widget de cumplimiento del dashboard: caja sólida (no el placeholder discontinuo). */
-#complianceStat {
-    border-style: solid;
-    color: var(--text);
-}
+.stateOnTrack   { background-color: var(--success); }
+.stateUnknown   { background-color: #6b7480; }   /* gris fijo: los cinco fondos no cambian con el tema */
 
 .statBig {
     font-size: 44px;
@@ -1263,11 +1183,9 @@ input:-webkit-autofill:active {
 
 /* ===== Recomendaciones y Mensajes ===== */
 
-/* Widget "Recommendation of the day" del dashboard: caja sólida como la de cumplimiento,
-   pero con el contenido alineado a la izquierda porque es texto y no una cifra. */
+/* Widget "Recommendation of the day": como la caja de cumplimiento, pero con el contenido
+   alineado a la izquierda porque es texto y no una cifra. */
 .recCard {
-    border-style: solid;
-    color: var(--text);
     text-align: left;
     align-items: stretch;
 }
@@ -1370,15 +1288,15 @@ input:-webkit-autofill:active {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     border-radius: 4px;
     padding: 3px 8px;
-    color: var(--btn-text);
+    color: var(--text);
     background-color: var(--btn-bg);
 }
 
 .messageTag.tag-recommendation {
-    color: #ffffff;
+    color: var(--on-color);
     background-color: var(--accent);
 }
 
@@ -1423,12 +1341,13 @@ input:-webkit-autofill:active {
 
 footer {
     background-color: var(--footer-bg);
-    color: var(--footer-text);
+    color: var(--text);
     padding: 40px 0 32px;
 }
 
-/* Bloque único centrado: identifica el trabajo y quién lo firma. No hay mapa de sitio
-   porque la navegación ya la da el header (nav.js) y duplicarla solo añadía enlaces muertos. */
+/* Bloque único centrado con la identidad del trabajo. No hay mapa de sitio porque la
+   navegación ya la da la cabecera y duplicarla solo añadía enlaces muertos. */
+
 .footerInner {
     max-width: 640px;
     margin: 0 auto;
@@ -1465,50 +1384,4 @@ footer {
 
 .footerNote a:hover {
     color: var(--text);
-}
-
-/* ===== Responsive (todos los tamaños en un solo sitio) ===== */
-
-/* Tablet: el padding lateral fijo del header es inviable.
-   El footer ya no aparece aquí: .footerInner es un bloque centrado con max-width, así que
-   se adapta solo y no necesita reajuste por breakpoint. */
-@media (max-width: 900px) {
-    .mainHeader .container { padding: 0 24px; }
-}
-
-/* Tablet estrecha y móvil. */
-@media (max-width: 768px) {
-    /* Header: el menú baja a una 2ª fila; las subsecciones envuelven. */
-    .navigation { flex-wrap: wrap; row-gap: 12px; }
-    .menu { width: 100%; justify-content: space-between; gap: 16px; }
-    .subsectionNav { flex-wrap: wrap; row-gap: 8px; }
-
-    /* Dashboard: las dos mitades se apilan (horario arriba, placeholders debajo). */
-    .dashboardGrid { grid-template-columns: 1fr; }
-
-    /* Estadísticas: el panel dividido se apila (gráfica arriba, datos debajo). */
-    .statsSplit { grid-template-columns: 1fr; }
-
-    /* Calendario: rejilla con scroll horizontal y ancho mínimo por día. */
-    .weekGrid { overflow-x: auto; }
-    .weekHead,
-    .weekBody { grid-template-columns: 60px repeat(7, minmax(90px, 1fr)); }
-}
-
-/* Móvil. */
-@media (max-width: 600px) {
-    .mainHeader .container { padding: 0 16px; }
-    .container { padding: 0 16px; }
-
-    .weekBar { flex-wrap: wrap; }
-
-    /* Tabla de hábitos: scroll horizontal en vez de desbordar (truco display:block). */
-    .habitTable { display: block; overflow-x: auto; white-space: nowrap; }
-
-    /* Add session: apilar hora de inicio y fin. */
-    .sessionTimes { flex-direction: column; gap: 0; }
-
-    /* Mensajes: título y etiqueta, y fecha y acciones, se apilan para no desbordar. */
-    .messageHead,
-    .messageFoot { flex-direction: column; align-items: flex-start; gap: 8px; }
 }

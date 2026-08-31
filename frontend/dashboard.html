@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         // Aplica el tema guardado antes de pintar para evitar parpadeo
         if (localStorage.getItem("theme") === "light") {
@@ -28,7 +27,6 @@
                     <button type="button" id="navToggle" class="navToggle" aria-label="Open sections" aria-expanded="false">☰</button>
                     <div class="logo">
                         <h1><a href="index.html">FocusFlow</a></h1>
-                        <img src="img/favicons.png" width="64">
                     </div>
                     <div id="sectionMenu" class="sectionMenu" role="menu" aria-hidden="true">
                         <div class="sectionMenuHeader">
@@ -65,14 +63,14 @@
                         <ul class="todayList" id="todayList"></ul>
                     </div>
                     <div class="dashboardStats">
-                        <div class="statPlaceholder statCard" id="complianceStat">
+                        <div class="statBox" id="complianceStat">
                             <div>
                                 <h3>Percentage of compliance</h3>
                                 <p class="statBig" id="complianceValue">—</p>
                                 <p class="statSub">Last 30 days</p>
                             </div>
                         </div>
-                        <div class="statPlaceholder recCard" id="recommendationStat">
+                        <div class="statBox recCard" id="recommendationStat">
                             <div class="recBody">
                                 <div class="recHeader">
                                     <h3>Recommendation of the day</h3>

@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         // Aplica el tema guardado antes de pintar para evitar parpadeo
         if (localStorage.getItem("theme") === "light") {
@@ -28,7 +27,6 @@
                     <button type="button" id="navToggle" class="navToggle" aria-label="Open sections" aria-expanded="false">☰</button>
                     <div class="logo">
                         <h1><a href="index.html">FocusFlow</a></h1>
-                        <img src="img/favicons.png" width="64">
                     </div>
                     <div id="sectionMenu" class="sectionMenu" role="menu" aria-hidden="true">
                         <div class="sectionMenuHeader">
@@ -74,13 +72,17 @@
                             <option value="Other">Other</option>
                         </select>
                     </div>
-                    <div class="textArea">
-                        <label for="habitImportance">Importance</label>
-                        <div class="rangeRow">
-                            <input type="range" id="habitImportance" name="habitImportance" min="1" max="3" step="1" value="2">
-                            <span class="rangeValue" id="importanceValue">Medium</span>
+                    <fieldset class="textArea segmentedField">
+                        <legend>Importance</legend>
+                        <div class="segmented">
+                            <input type="radio" id="importanceLow" name="habitImportance" value="1">
+                            <label for="importanceLow">Low</label>
+                            <input type="radio" id="importanceMedium" name="habitImportance" value="2" checked>
+                            <label for="importanceMedium">Medium</label>
+                            <input type="radio" id="importanceHigh" name="habitImportance" value="3">
+                            <label for="importanceHigh">High</label>
                         </div>
-                    </div>
+                    </fieldset>
                     <div class="formActions">
                         <button type="submit" class="submitBtn">Confirm</button>
                         <button type="button" class="cancelBtn" id="cancelBtn">Cancel</button>
