@@ -11,6 +11,7 @@ $(document).ready(function () {
     }
     updateTypePlaceholder();
     typeSelect.addEventListener("change", updateTypePlaceholder);
+    typeSelect.addEventListener("change", HabitBenefits.attachText);
 
     // Obtener la importancia (1 = Low, 2 = Medium, 3 = High)
     function selectedImportance() {

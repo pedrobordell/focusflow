@@ -772,6 +772,7 @@ input:-webkit-autofill:focus {
 .segmented {
     display: flex;
     gap: 16px;
+    position: relative;
 }
 
 /* El radio real se oculta pero sigue siendo seleccionable */
@@ -779,6 +780,7 @@ input:-webkit-autofill:focus {
     position: absolute;
     opacity: 0;
     pointer-events: none;
+    width: 33%;
 }
 
 .segmented label {

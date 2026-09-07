@@ -25,6 +25,7 @@ $(document).ready(function () {
         typeSelect.classList.toggle("placeholder", typeSelect.value === "");
     }
     typeSelect.addEventListener("change", updateTypePlaceholder);
+    typeSelect.addEventListener("change", HabitBenefits.attachText);
 
     // Obtener la importancia (1 = Low, 2 = Medium, 3 = High)
     function selectedImportance() {
@@ -58,6 +59,7 @@ $(document).ready(function () {
             );
             if (importanceInput) importanceInput.checked = true;
             updateTypePlaceholder();
+            HabitBenefits.attachText();
         })
         .catch(function (error) {
             console.error("Error al cargar el hábito:", error);
