@@ -69,6 +69,8 @@ $(document).ready(function () {
         var s = SessionForm.readBlock(block, 0);
         if (!s) return;
 
+        SessionForm.detectOverlap(s, sessionId);
+        
         habitId = parseInt(habitId, 10);
 
         fetch(`${API_BASE}/sessions/${sessionId}`, {

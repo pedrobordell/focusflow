@@ -114,6 +114,33 @@ window.SessionForm = (function () {
         return d.getFullYear() + "-" + mm + "-" + dd;
     }
 
+    // Detecta si hay alguna sesión solapada con una sesión
+    async function detectOverlap(session, id=null) {
+        var start = addDays(session.date, -1);
+        var end = session.end_date;
+
+        try {
+            var overlaps = await authFetch(`/sessions?from=${start}&to=${end}`, {
+                method: "GET",
+            });
+            var sessionStart = new Date(session.date + 'T' + session.start_time);
+            var sessionEnd = new Date(session.end_date + 'T' + session.end_time);
+
+            overlaps.some(overlap => {
+                var overlapStart = new Date(overlap.date + 'T' + overlap.start_time);
+                var overlapEnd = new Date(overlap.end_date + 'T' + overlap.end_time);
+                
+                if (overlapStart < sessionEnd && overlapEnd > sessionStart && overlap.id != id) {
+                    alert("Overlapping sessions will be created");
+                    return true;
+                }
+            });            
+        } catch (error) {
+            console.error("Error obteniendo las sesiones solapadas");
+            alert(error.message || "Could not get overlapped sessions");
+        }
+    }
+
     return {
         handleUnauthorized: handleUnauthorized,
         setupHabitPlaceholder: setupHabitPlaceholder,
@@ -121,6 +148,7 @@ window.SessionForm = (function () {
         setupRecurrenceToggle: setupRecurrenceToggle,
         readBlock: readBlock,
         addDays: addDays,
-        todayStr: todayStr
+        todayStr: todayStr,
+        detectOverlap: detectOverlap,
     };
 })();

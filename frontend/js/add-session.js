@@ -71,6 +71,10 @@ $(document).ready(function () {
             sessions.push(session);
         }
 
+        sessions.forEach(session => {
+            SessionForm.detectOverlap(session);
+        });
+
         var payload = { habit_id: parseInt(habitId, 10), sessions: sessions };
 
         fetch(`${API_BASE}/sessions`, {
