@@ -1,3 +1,5 @@
+from icalendar import Calendar
+
 """Pruebas del subsistema de sesiones: creación en lote (POST /sessions) con recurrencia."""
 
 
@@ -468,3 +470,81 @@ def test_update_session_to_overnight(client):
     assert body["end_date"] == "2026-07-02"
     assert body["start_time"] == "22:00:00"
     assert body["end_time"] == "07:00:00"
+
+# --- Exportación a iCalendar ------------------------------------------------
+
+def test_export_sessions_returns_ical(client):
+    token = _auth_token(client)
+    habit_id = _create_habit(client, token)
+    session_id = _create_one_session(client, token, habit_id)
+    
+    r = client.get(
+        "/sessions/export",
+        params={"from": "2026-06-29", "to": "2026-07-05"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "text/calendar; charset=utf-8"
+    assert r.headers["Content-Disposition"] == 'attachment; filename="focusflow.ics"'
+    assert b"BEGIN:VCALENDAR" in r.content
+    assert b"BEGIN:VEVENT" in r.content
+
+def test_export_sessions_empty_range(client):
+    token = _auth_token(client)
+    habit_id = _create_habit(client, token)
+    session_id = _create_one_session(client, token, habit_id)
+    
+    r = client.get(
+        "/sessions/export",
+        params={"from": "2026-07-06", "to": "2026-07-12"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200
+    assert b"BEGIN:VCALENDAR" in r.content
+    assert b"BEGIN:VEVENT" not in r.content
+
+def test_export_sessions_excludes_other_users(client):
+    alice = _auth_token(client)
+    alice_habit = _create_habit(client, alice)
+    alice_session = _create_one_session(client, alice, alice_habit)
+
+    bob = _auth_token(client, username="bob", email="bob@example.com")
+    bob_habit = _create_habit(client, bob)
+    bob_session = _create_one_session(client, bob, bob_habit)
+
+    r = client.get(
+        "/sessions/export",
+        params={"from": "2026-06-29", "to": "2026-07-05"},
+        headers={"Authorization": f"Bearer {alice}"},
+    )
+    assert r.status_code == 200
+
+    cal = Calendar.from_ical(r.content)
+    events = cal.walk("VEVENT")
+
+    assert len(events) == 1
+    assert str(events[0]["uid"]) == f"session-{alice_session}@focusflow"
+    
+
+def test_export_sessions_without_token(client):
+    token = _auth_token(client)
+    habit_id = _create_habit(client, token)
+    session_id = _create_one_session(client, token, habit_id)
+    
+    r = client.get(
+        "/sessions/export",
+        params={"from": "2026-06-29", "to": "2026-07-05"},
+    )
+    assert r.status_code == 401
+
+def test_export_sessions_missing_params(client):
+    token = _auth_token(client)
+    habit_id = _create_habit(client, token)
+    session_id = _create_one_session(client, token, habit_id)
+    
+    r = client.get(
+        "/sessions/export",
+        params={"from": "2026-06-29"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 422

@@ -9,3 +9,4 @@ python-dotenv>=1.0
 pandas>=2.2
 matplotlib>=3.8
 scikit-learn>=1.4
+icalendar>=7.3.0

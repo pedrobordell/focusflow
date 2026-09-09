@@ -390,5 +390,26 @@ $(document).ready(function () {
         loadSessions();
     });
 
+    // --- Exportación a iCal -----------------------------------------------
+    async function downloadCalendar(weekStart, weekEnd) {
+        var url = await authFetchBlob(
+            `/sessions/export?from=${weekStart}&to=${weekEnd}`
+        );
+        if (!url) return;
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'focusflow.ics';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+    
+    document.getElementById("exportCal").addEventListener("click", function() {          
+        var weekEnd = SessionForm.addDays(weekStart, 6);
+
+        downloadCalendar(weekStart, weekEnd);
+    });
+
     loadHabitsThenSessions();
 });

@@ -468,8 +468,10 @@ input:-webkit-autofill:focus {
     background: var(--btn-bg-hover);
 }
 
-.weekTodayBtn {
-    margin-left: auto;   /* empuja el botón al extremo derecho de la barra */
+.weekNavRight {
+    display: flex;
+    gap: 20px;
+    margin-left: auto;   /* empuja los botones al extremo derecho de la barra */
 }
 
 .weekLabel {

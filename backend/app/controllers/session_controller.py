@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from controllers.auth_controller import get_current_user
@@ -9,6 +9,7 @@ from models.user import User
 from repositories.session_repository import SessionRepository
 from repositories.habit_repository import HabitRepository
 from services.session_service import SessionService
+from services.ical_export import export_to_iCal
 from schemas.session_schema import (
     SessionBatchCreateRequest,
     SessionUpdateRequest,
@@ -55,6 +56,23 @@ def list_sessions(
     session_service: SessionService = Depends(get_session_service)
 ):
     return session_service.list_sessions(current_user.id, date_from, date_to)
+
+# Exporta las sesiones del calendario a iCal por rango de fechas
+@session_controller.get("/export")
+def export_sessions(
+    date_from: date = Query(..., alias="from"),
+    date_to: date = Query(..., alias="to"),
+    current_user: User = Depends(get_current_user),
+    session_service: SessionService = Depends(get_session_service),
+):
+    sessions = session_service.list_sessions(current_user.id, date_from, date_to)
+    return Response(
+        content=export_to_iCal(sessions=sessions),
+        headers={
+            "Content-Disposition": 'attachment; filename="focusflow.ics"',
+        },
+        media_type="text/calendar"
+    )
 
 # Obtiene una sesión propia (para precargar el formulario de edición)
 @session_controller.get("/{session_id}", response_model=HabitSessionResponse, status_code=status.HTTP_200_OK)

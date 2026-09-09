@@ -58,7 +58,10 @@
                     <button type="button" class="weekNavBtn" id="prevWeek" aria-label="Previous week">‹</button>
                     <span class="weekLabel" id="weekLabel"></span>
                     <button type="button" class="weekNavBtn" id="nextWeek" aria-label="Next week">›</button>
-                    <button type="button" class="weekTodayBtn" id="todayWeek">Return to today</button>
+                    <div class="weekNavRight">
+                        <button type="button" class="weekTodayBtn" id="exportCal" aria-label="Export calendar">Export calendar</button>
+                        <button type="button" class="weekTodayBtn" id="todayWeek">Return to today</button>
+                    </div>
                 </div>
                 <p class="emptyState" id="calendarEmpty" hidden>You have no habits yet — <a href="add-habit.html">create one</a> and <a href="add-session.html">schedule a session</a>.</p>
                 <div class="weekGrid" id="weekGrid"></div>
