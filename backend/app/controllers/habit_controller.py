@@ -31,7 +31,8 @@ def create_habit(
         user_id=current_user.id,
         name=request.name,
         type=request.type,
-        importance=request.importance
+        importance=request.importance,
+        color=request.color
     )
     return habit
 
@@ -69,7 +70,8 @@ def update_habit(
             user_id=current_user.id,
             name=request.name,
             type=request.type,
-            importance=request.importance
+            importance=request.importance,
+            color=request.color
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

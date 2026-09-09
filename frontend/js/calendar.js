@@ -85,7 +85,12 @@ $(document).ready(function () {
             if (!habits) return;    // 401: authFetch ya está redirigiendo a login
             habitMap = {};
             habits.forEach(function (h) {
-                habitMap[h.id] = { name: h.name, type: h.type, importance: h.importance };
+                habitMap[h.id] = { 
+                    name: h.name,
+                    type: h.type,
+                    importance: h.importance,
+                    color: h.color,
+                };
             });
             emptyMsg.hidden = habits.length > 0;
             await loadSessions();
@@ -228,21 +233,22 @@ $(document).ready(function () {
     // Crea el "chip" de una Session
     function buildEvent(session, segment) {
         var overnight = session.end_date && session.end_date !== session.date;
-        var habit = habitMap[session.habit_id] || { name: "Habit", type: null, importance: 2 };
+        var habit = habitMap[session.habit_id] || { name: "Habit", type: null, importance: 2, color: "#3f8ae0" };
         var bounds = segmentBounds(session, segment);
         var timeLabel = (segment === "tail")
             ? "→ " + session.end_time.slice(0, 5)
             : session.start_time.slice(0, 5);
 
         // Contenedor del chip; se calculan top y height a partir de los bounds
-        var chip = el("div", "evt imp" + habit.importance + (session.completed ? " completed" : ""));
+        var chip = el("div", "evt" + (session.completed ? " completed" : ""));
+        chip.style.backgroundColor = habit.color;
         var heightPx = Math.max(bounds.heightMin * PX_PER_MIN, MIN_EVT_PX);
         // Si no cabe todo en el chip, se compacta
         if (heightPx < COMPACT_PX) chip.classList.add("evtCompact");
         chip.style.top = (bounds.topMin * PX_PER_MIN) + "px";
         chip.style.height = heightPx + "px";
         chip.title = habit.name + (habit.type ? " (" + habit.type + ")" : "") + " · " +
-            session.start_time.slice(0, 5) + "–" + session.end_time.slice(0, 5) +
+            session.start_time.slice(0, 5) + "-" + session.end_time.slice(0, 5) +
             (overnight ? " (+1)" : "");
 
         // Hora, nombre y (si lo tiene) tipo del hábito

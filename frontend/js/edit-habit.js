@@ -60,6 +60,7 @@ $(document).ready(function () {
             if (importanceInput) importanceInput.checked = true;
             updateTypePlaceholder();
             HabitBenefits.attachText();
+            document.getElementById("habitColor").value = habit.color;
         })
         .catch(function (error) {
             console.error("Error al cargar el hábito:", error);
@@ -75,10 +76,13 @@ $(document).ready(function () {
             return;
         }
 
+        var color = document.getElementById("habitColor").value;
+
         var payload = {
             name: name,
             type: typeSelect.value || null,
-            importance: selectedImportance()
+            importance: selectedImportance(),
+            color: color
         };
 
         fetch(`${API_BASE}/habits/${habitId}`, {

@@ -10,10 +10,10 @@ def _auth_token(client, username="alice", email="alice@example.com", password="s
     return r.json()["access_token"]
 
 
-def _create_habit(client, token, name="Read", type="Study", importance=2):
+def _create_habit(client, token, name="Read", type="Study", importance=2, color="#3f8ae0"):
     return client.post(
         "/habits",
-        json={"name": name, "type": type, "importance": importance},
+        json={"name": name, "type": type, "importance": importance, "color": color},
         headers={"Authorization": f"Bearer {token}"},
     )
 
@@ -22,7 +22,7 @@ def _create_habit(client, token, name="Read", type="Study", importance=2):
 
 def test_create_habit_success(client):
     token = _auth_token(client)
-    r = _create_habit(client, token, name="Read", type="Study", importance=2)
+    r = _create_habit(client, token)
     assert r.status_code == 201
     body = r.json()
     assert body["name"] == "Read"
@@ -36,7 +36,7 @@ def test_create_habit_type_optional(client):
     token = _auth_token(client)
     r = client.post(
         "/habits",
-        json={"name": "Meditate", "importance": 1},
+        json={"name": "Meditate", "importance": 1, "color": "#3f8ae0"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 201
@@ -46,14 +46,17 @@ def test_create_habit_type_optional(client):
 # --- Autenticación ----------------------------------------------------------
 
 def test_create_habit_without_token(client):
-    r = client.post("/habits", json={"name": "Read", "type": "Study", "importance": 2})
+    r = client.post(
+        "/habits", 
+        json={"name": "Read", "type": "Study", "importance": 2, "color": "#3f8ae0"}
+    )
     assert r.status_code == 401
 
 
 def test_create_habit_with_invalid_token(client):
     r = client.post(
         "/habits",
-        json={"name": "Read", "type": "Study", "importance": 2},
+        json={"name": "Read", "type": "Study", "importance": 2, "color": "#3f8ae0"},
         headers={"Authorization": "Bearer not.a.valid.token"},
     )
     assert r.status_code == 401
@@ -65,7 +68,7 @@ def test_create_habit_missing_name(client):
     token = _auth_token(client)
     r = client.post(
         "/habits",
-        json={"type": "Study", "importance": 2},
+        json={"type": "Study", "importance": 2, "color": "#3f8ae0"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 422
@@ -74,6 +77,16 @@ def test_create_habit_missing_name(client):
 def test_create_habit_importance_out_of_range(client):
     token = _auth_token(client)
     r = _create_habit(client, token, importance=5)
+    assert r.status_code == 422
+
+
+def test_create_habit_invalid_color(client):
+    token = _auth_token(client)
+    r = client.post(
+        "/habits",
+        json={"name": "Meditate", "importance": 1, "color": "not-a-color"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
     assert r.status_code == 422
 
 
@@ -137,7 +150,7 @@ def test_update_habit_success(client):
     habit_id = _create_habit(client, token, name="Read", type="Study", importance=1).json()["id"]
     r = client.put(
         f"/habits/{habit_id}",
-        json={"name": "Read more", "type": "Mindfulness", "importance": 3},
+        json={"name": "Read more", "type": "Mindfulness", "importance": 3, "color": "#3f8ae0"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 200
@@ -154,7 +167,7 @@ def test_update_habit_of_another_user_is_404(client):
     other = _auth_token(client, username="bob", email="bob@example.com")
     r = client.put(
         f"/habits/{habit_id}",
-        json={"name": "Hacked", "type": "Other", "importance": 2},
+        json={"name": "Hacked", "type": "Other", "importance": 2, "color": "#3f8ae0"},
         headers={"Authorization": f"Bearer {other}"},
     )
     assert r.status_code == 404
@@ -165,7 +178,7 @@ def test_update_habit_invalid_importance(client):
     habit_id = _create_habit(client, token).json()["id"]
     r = client.put(
         f"/habits/{habit_id}",
-        json={"name": "Read", "type": "Study", "importance": 9},
+        json={"name": "Read", "type": "Study", "importance": 9, "color": "#3f8ae0"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 422

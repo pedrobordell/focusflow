@@ -263,10 +263,10 @@ def _auth(token):
     return {"Authorization": f"Bearer {token}"}
 
 
-def _create_habit(client, token, name="Read", type="Study", importance=2):
+def _create_habit(client, token, name="Read", type="Study", importance=2, color="#3f8ae0"):
     r = client.post(
         "/habits",
-        json={"name": name, "type": type, "importance": importance},
+        json={"name": name, "type": type, "importance": importance, "color": "#3f8ae0"},
         headers=_auth(token),
     )
     return r.json()["id"]

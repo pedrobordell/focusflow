@@ -425,11 +425,6 @@ input:-webkit-autofill:focus {
     background-color: var(--btn-bg);
 }
 
-/* Barra izquierda por importancia (1 = baja, 2 = media, 3 = alta) */
-.todayLink.imp1 { border-left-color: var(--success); }
-.todayLink.imp2 { border-left-color: var(--accent); }
-.todayLink.imp3 { border-left-color: var(--error); }
-
 .todayTime {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -650,11 +645,6 @@ input:-webkit-autofill:focus {
     display: flex;
 }
 
-/* Color del chip por importancia del hábito */
-.evt.imp1 { background: var(--success); }
-.evt.imp2 { background: var(--accent); }
-.evt.imp3 { background: var(--error); }
-
 .errorMsg {
     color: var(--error);
     font-size: 12px;
@@ -810,6 +800,21 @@ input:-webkit-autofill:focus {
 .segmented input:focus-visible + label {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
+}
+
+/* El campo del color */
+.colorField {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+    
+}
+.colorField input{
+    height: 48px;
+    padding: 2px;
+    width: 48px;
+    border-radius: 8px;
 }
 
 .formActions {

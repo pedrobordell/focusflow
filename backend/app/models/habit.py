@@ -19,6 +19,7 @@ class Habit(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     type: Mapped[str | None] = mapped_column(String(50), nullable=True)
     importance: Mapped[int] = mapped_column(Integer, nullable=False)
+    color: Mapped[str] = mapped_column(String(7), nullable=False)
 
     # Relaciones
     user: Mapped["User"] = relationship(back_populates="habits")

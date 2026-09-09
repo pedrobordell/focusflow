@@ -15,13 +15,15 @@ class HabitService:
         user_id: int,
         name: str,
         type: Optional[str],
-        importance: int
+        importance: int,
+        color: str
     ) -> Habit:
         return self.habit_repo.create_habit(
             user_id=user_id,
             name=name,
             type=type,
-            importance=importance
+            importance=importance,
+            color=color
         )
 
     # Lista los hábitos del usuario
@@ -43,14 +45,16 @@ class HabitService:
         user_id: int,
         name: str,
         type: Optional[str],
-        importance: int
+        importance: int,
+        color: str
     ) -> Habit:
         habit = self.get_habit(habit_id, user_id)
         return self.habit_repo.update_habit(
             habit,
             name=name,
             type=type,
-            importance=importance
+            importance=importance,
+            color=color
         )
 
     # Borra un hábito propio

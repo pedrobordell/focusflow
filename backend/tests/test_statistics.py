@@ -11,10 +11,10 @@ def _auth_token(client, username="alice", email="alice@example.com", password="s
     return r.json()["access_token"]
 
 
-def _create_habit(client, token, name="Read", type="Study", importance=2):
+def _create_habit(client, token, name="Read", type="Study", importance=2, color="#3f8ae0"):
     r = client.post(
         "/habits",
-        json={"name": name, "type": type, "importance": importance},
+        json={"name": name, "type": type, "importance": importance, "color": color},
         headers={"Authorization": f"Bearer {token}"},
     )
     return r.json()["id"]

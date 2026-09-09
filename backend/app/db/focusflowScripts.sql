@@ -16,6 +16,7 @@ CREATE TABLE habits (
     name VARCHAR(100) NOT NULL,
     type VARCHAR(50),
     importance INT NOT NULL,
+    color VARCHAR(7) NOT NULL DEFAULT '#3f8ae0',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -44,4 +45,3 @@ CREATE TABLE messages (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-select * from users;

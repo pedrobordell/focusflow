@@ -99,7 +99,7 @@ $(document).ready(function () {
         .then(function (habits) {
             if (!habits) return;
             habits.forEach(function (h) {
-                habitMap[h.id] = { name: h.name, importance: h.importance };
+                habitMap[h.id] = { name: h.name, importance: h.importance, color: h.color};
             });
             return loadToday();
         })
@@ -131,7 +131,7 @@ $(document).ready(function () {
         emptyMsg.hidden = sessions.length > 0;
 
         sessions.forEach(function (s) {
-            var habit = habitMap[s.habit_id] || { name: "Habit", importance: 2 };
+            var habit = habitMap[s.habit_id] || { name: "Habit", importance: 2, color: "#3f8ae0" };
 
             var li = document.createElement("li");
             li.className = "todayItem";
@@ -145,12 +145,13 @@ $(document).ready(function () {
             checkbox.addEventListener("change", function () { toggleCompleted(s, checkbox); });
 
             var link = document.createElement("a");
-            link.className = "todayLink imp" + habit.importance + (s.completed ? " completed" : "");
+            link.className = "todayLink " + (s.completed ? " completed" : "");
             link.href = "edit-session.html?id=" + s.id;
+            link.style.borderLeftColor = habit.color;
 
             var time = document.createElement("span");
             time.className = "todayTime";
-            time.textContent = s.start_time.slice(0, 5) + "–" + s.end_time.slice(0, 5);
+            time.textContent = s.start_time.slice(0, 5) + "-" + s.end_time.slice(0, 5);
 
             var name = document.createElement("span");
             name.className = "todayName";

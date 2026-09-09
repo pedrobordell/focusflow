@@ -16,13 +16,15 @@ class HabitRepository:
         user_id: int,
         name: str,
         type: Optional[str],
-        importance: int
+        importance: int,
+        color: str
     ) -> Habit:
         new_habit = Habit(
             user_id=user_id,
             name=name,
             type=type,
-            importance=importance
+            importance=importance,
+            color=color
         )
         self.session.add(new_habit)
         self.session.commit()
@@ -44,11 +46,13 @@ class HabitRepository:
         habit: Habit,
         name: str,
         type: Optional[str],
-        importance: int
+        importance: int,
+        color: str
     ) -> Habit:
         habit.name = name
         habit.type = type
         habit.importance = importance
+        habit.color = color
         self.session.commit()
         self.session.refresh(habit)
         return habit

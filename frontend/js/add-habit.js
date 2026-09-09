@@ -37,10 +37,14 @@ $(document).ready(function () {
             return;
         }
 
+        // Obtener el color
+        var color = document.getElementById("habitColor").value;
+
         var payload = {
             name: name,
-            type: typeSelect.value || null,   // "" (placeholder) -> null
-            importance: selectedImportance()
+            type: typeSelect.value || null,
+            importance: selectedImportance(),
+            color: color
         };
 
         fetch(`${API_BASE}/habits`, {

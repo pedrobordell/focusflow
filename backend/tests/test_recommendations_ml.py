@@ -320,9 +320,12 @@ def _auth(token):
     return {"Authorization": f"Bearer {token}"}
 
 
-def _create_habit(client, token, name="Study", importance=2):
-    return client.post("/habits", json={"name": name, "type": "Study", "importance": importance},
-                       headers=_auth(token)).json()["id"]
+def _create_habit(client, token, name="Study", importance=2, color="#3f8ae0"):
+    return client.post(
+        "/habits", 
+        json={"name": name, "type": "Study", "importance": importance, "color": "#3f8ae0"},
+        headers=_auth(token)
+    ).json()["id"]
 
 
 # 'specs' son tuplas (días de desfase respecto a hoy, hora de inicio, cumplida).
