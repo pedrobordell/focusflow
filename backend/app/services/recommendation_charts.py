@@ -66,7 +66,7 @@ def decision_tree(contexts: list[HabitContext]) -> bytes:
         ax=ax,
     )
     ax.set_title(
-        f"How the model decides — {_evaluation_label(frame)}",
+        f"How the model decides - {_evaluation_label(frame)}",
         fontsize=10,
     )
     return to_png(fig)

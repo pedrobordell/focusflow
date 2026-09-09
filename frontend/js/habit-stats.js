@@ -66,7 +66,7 @@ $(document).ready(function () {
         var meta = [];
         if (detail.type) meta.push(detail.type);
         meta.push("Importance: " + (IMPORTANCE_LABELS[detail.importance] || detail.importance));
-        document.getElementById("habitInfoMeta").textContent = meta.join(" · ");
+        document.getElementById("habitInfoMeta").textContent = meta.join(" - ");
 
         var last10 = document.getElementById("last10Value");
         if (detail.last10_rate != null) {
@@ -74,12 +74,12 @@ $(document).ready(function () {
             document.getElementById("last10Meta").textContent =
                 "Over the last " + detail.last10_count + " session" + (detail.last10_count === 1 ? "" : "s");
         } else {
-            last10.textContent = "—";
+            last10.textContent = "-";
             document.getElementById("last10Meta").textContent = "No sessions yet";
         }
 
         var best = document.getElementById("bestSlotValue");
-        best.textContent = detail.best_slot || "—";
+        best.textContent = detail.best_slot || "-";
         // Sin best_slot puede ser que no haya sesiones o que ninguna franja tenga suficientes
         // (el backend exige un mínimo para no proponer un horario a partir de una casualidad).
         document.getElementById("bestSlotMeta").textContent =

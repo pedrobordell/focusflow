@@ -55,7 +55,7 @@ $(document).ready(function () {
             document.getElementById("mostHoursValue").textContent =
                 highlights.most_hours.completed_hours + " h";
             document.getElementById("mostHoursMeta").textContent =
-                highlights.most_hours.habit_name + " · " +
+                highlights.most_hours.habit_name + " - " +
                 formatPercent(highlights.most_hours.compliance_rate) + " compliance";
         }
 

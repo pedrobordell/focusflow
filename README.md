@@ -61,7 +61,7 @@ frontend/          # Páginas HTML, CSS y JS
    cd backend/app
    python main.py
    ```
-   API: http://127.0.0.1:8000 — Documentación: http://127.0.0.1:8000/docs
+   API: http://127.0.0.1:8000 - Documentación: http://127.0.0.1:8000/docs
 
 ## Frontend
 

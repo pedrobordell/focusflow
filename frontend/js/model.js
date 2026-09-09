@@ -76,7 +76,7 @@ $(document).ready(function () {
         card.querySelector(".insightProbability").textContent =
             formatPercent(insight.probability);
         card.querySelector(".insightCurrent").textContent =
-            "On " + insight.current_label + ", as you usually schedule it · " +
+            "On " + insight.current_label + ", as you usually schedule it - " +
             insight.trend_label.toLowerCase();
         card.querySelector(".insightSuggestion").textContent =
             "Best predicted slot: " + insight.best_label +

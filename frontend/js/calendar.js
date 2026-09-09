@@ -247,7 +247,7 @@ $(document).ready(function () {
         if (heightPx < COMPACT_PX) chip.classList.add("evtCompact");
         chip.style.top = (bounds.topMin * PX_PER_MIN) + "px";
         chip.style.height = heightPx + "px";
-        chip.title = habit.name + (habit.type ? " (" + habit.type + ")" : "") + " · " +
+        chip.title = habit.name + (habit.type ? " (" + habit.type + ")" : "") + " - " +
             session.start_time.slice(0, 5) + "-" + session.end_time.slice(0, 5) +
             (overnight ? " (+1)" : "");
 
