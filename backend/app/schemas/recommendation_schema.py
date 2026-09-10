@@ -56,7 +56,7 @@ class HabitInsight(BaseModel):
     habit_name: str
     state: str                                  # abandoned|at_risk|improving|on_track|unknown
     probability: Optional[float]                # P(cumplir) tal y como lo programa AHORA
-    trend: float                                # pendiente de la regresión (+ mejora, − empeora)
+    trend: float                                # pendiente de la regresión (+ mejora, - empeora)
     trend_label: str                            # Interpretación de la pendiente ("Trending up"/"down"/"Steady")
     current_label: Optional[str]                # Día + Franja actual
     best_slot: Optional[int]

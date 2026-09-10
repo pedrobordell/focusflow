@@ -48,7 +48,7 @@ class HabitHighlight(BaseModel):
     habit_id: int
     habit_name: str
     compliance_rate: float          # % del hábito esa semana
-    completed_hours: float          # horas dedicadas (Σ duración de sesiones cumplidas)
+    completed_hours: float          # horas dedicadas (sumatorio duración de sesiones cumplidas)
 
 
 # Destacados de la semana (Weekly Stats, panel derecho): semana actual vs anterior.
@@ -56,7 +56,7 @@ class WeeklyHighlights(BaseModel):
     week_from: date                 # lunes de la semana analizada
     week_to: date                   # domingo de la semana analizada
     most_hours: Optional[HabitHighlight]        # hábito con más horas dedicadas; None si semana vacía
-    worst_compliance: Optional[HabitHighlight]  # hábito con peor % (≥1 sesión); None si semana vacía
+    worst_compliance: Optional[HabitHighlight]  # hábito con peor % (>=1 sesión); None si semana vacía
     compliance_now: float           # % global de esta semana
     compliance_prev: float          # % global de la semana anterior
     improvement_pp: float           # (now - prev) * 100, en puntos porcentuales
@@ -68,6 +68,6 @@ class HabitDetail(BaseModel):
     habit_name: str
     type: Optional[str]
     importance: int
-    last10_rate: Optional[float]    # % de las últimas 10 sesiones (fecha ≤ hoy); None si 0 sesiones
-    last10_count: int               # nº de sesiones consideradas (≤ 10)
+    last10_rate: Optional[float]    # % de las últimas 10 sesiones (fecha <= hoy); None si 0 sesiones
+    last10_count: int               # nº de sesiones consideradas (<= 10)
     best_slot: Optional[str]        # franja horaria con mayor %; None si no hay datos en el periodo

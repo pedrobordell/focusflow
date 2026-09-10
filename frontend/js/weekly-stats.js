@@ -69,7 +69,7 @@ $(document).ready(function () {
         // Mejora respecto a la semana anterior (en puntos porcentuales)
         var improvementEl = document.getElementById("improvementValue");
         var improvementPp = highlights.improvement_pp;
-        var sign = improvementPp > 0 ? "+" : "";     // los negativos ya llevan "−" del número
+        var sign = improvementPp > 0 ? "+" : "";     // los negativos ya llevan "-" del número
         improvementEl.textContent = sign + improvementPp + " pp";
         improvementEl.classList.remove("deltaUp", "deltaDown");
         if (improvementPp > 0) improvementEl.classList.add("deltaUp");

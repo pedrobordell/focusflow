@@ -236,7 +236,7 @@ $(document).ready(function () {
         var habit = habitMap[session.habit_id] || { name: "Habit", type: null, importance: 2, color: "#3f8ae0" };
         var bounds = segmentBounds(session, segment);
         var timeLabel = (segment === "tail")
-            ? "→ " + session.end_time.slice(0, 5)
+            ? "-> " + session.end_time.slice(0, 5)
             : session.start_time.slice(0, 5);
 
         // Contenedor del chip; se calculan top y height a partir de los bounds

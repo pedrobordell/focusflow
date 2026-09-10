@@ -46,6 +46,8 @@ frontend/          # Páginas HTML, CSS y JS
    ```
 3. Crear la base de datos ejecutando el script
    `backend/app/db/focusflowScripts.sql` en tu servidor MySQL.
+   Para cargar los datos de prueba (opcional, ver [Datos de prueba](#datos-de-prueba)),
+   ejecuta a continuación `backend/app/db/focusflow_demo.sql`.
 4. Configurar las variables de entorno:
    ```bash
    copy backend\.env.example backend\.env    # Windows
@@ -67,6 +69,16 @@ frontend/          # Páginas HTML, CSS y JS
 
 Abre `frontend/index.html` en el navegador (o sírvelo con una extensión tipo
 Live Server). El frontend llama a la API en http://localhost:8000.
+
+## Datos de prueba
+
+Ejecutando `backend/app/db/focusflow_demo.sql` (tras crear el esquema con
+`focusflowScripts.sql`) se carga un usuario con hábitos y sesiones de varios
+meses ya generados, para poder probar la aplicación sin necesidad de
+registrarse ni generar datos manualmente:
+
+- **Email:** `user@example.com`
+- **Contraseña:** `123456`
 
 ## Notas de seguridad
 
