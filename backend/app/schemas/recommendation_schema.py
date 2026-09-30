@@ -11,8 +11,6 @@ from schemas.statistics_schema import SlotStat
 # 
 # Gracias a ese contrato la estrategia de recomendaciones no sabe nada de 
 # SQLAlchemy ni de FastAPI: recibe números y devuelve textos. 
-# 
-# Permitiendo en el futuro sustituir las reglas por un modelo predictivo sin tocar nada más.
 
 
 # Una sesión pasada reducida a las variables que entiende un modelo.

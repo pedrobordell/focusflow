@@ -29,8 +29,6 @@ $(document).ready(function () {
         $("<td>").text(habit.name).appendTo(tr);
         $("<td>").text(habit.type || "-").appendTo(tr);
         $("<td>").text(IMPORTANCE_LABELS[habit.importance] || habit.importance).appendTo(tr);
-        // Completed: placeholder hasta tener el subsistema de sesiones
-        $("<td>").append($("<span>").addClass("emptyState").text("-")).appendTo(tr);
 
         // Stats: enlaza al detalle del hábito (Habit Stats), preseleccionándolo por id
         $("<td>").addClass("iconCol").append(

@@ -731,7 +731,7 @@ input:-webkit-autofill:focus {
     font-size: 14px;
 }
 
-/* ===== Add habit (formulario) ===== */
+/* ===== Add Habit (formulario) ===== */
 .habitForm {
     max-width: 480px;
     margin: 0 auto 64px;
@@ -844,7 +844,7 @@ input:-webkit-autofill:focus {
     background: var(--btn-bg-hover);
 }
 
-/* ===== Add session (formulario) ===== */
+/* ===== Add Session (formulario) ===== */
 /* Cada sesión a crear es una "tarjeta" con su día, horas y recurrencia opcional. */
 .sessionBlock {
     border: 1px solid var(--divider);

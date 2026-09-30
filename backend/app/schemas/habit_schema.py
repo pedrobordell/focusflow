@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 # Valida la request para crear un hábito
 class HabitCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)
-    # 'type' es opcional porque su dominio aún no está cerrado
     type: Optional[str] = Field(default=None, max_length=50)
     # Importancia en rango 1-3
     importance: int = Field(ge=1, le=3)

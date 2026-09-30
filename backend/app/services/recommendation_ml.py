@@ -37,8 +37,9 @@ WEEKDAY_LABELS = [
 
 # --- Estados de un hábito ---------------------------------------------------
 
-STATE_ABANDONED = "abandoned"       # >14 días sin cumplirse
-STATE_AT_RISK = "at_risk"           # <50% cumplimiento y con pendiente negativa
+STATE_ABANDONED = "abandoned"       # >=14 días sin cumplirse
+STATE_AT_RISK = "at_risk"           # <50% cumplimiento y con pendiente plana o negativa,
+                                    # o >=50% cumplimiento y con pendiente negativa
 STATE_IMPROVING = "improving"       # <50% cumplimiento y con pendiente positiva
 STATE_ON_TRACK = "on_track"         # >50% cumplimiento y con pendiente no negativa
 STATE_UNKNOWN = "unknown"           # sin datos
